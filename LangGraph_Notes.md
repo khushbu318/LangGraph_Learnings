@@ -1,0 +1,4653 @@
+# Agentic AI
+
+## What is Agentic AI?
+
+Agentic AI is a type of AI that can take up a task or goal from a user and work toward completing it on its own with minimal human guidance.
+
+It can:
+- Plan its actions
+- Take action independently
+- Adapt to changing conditions
+- Seek human assistance only when necessary
+
+---
+
+# Characteristics of Agentic AI
+
+1. Autonomy
+2. Goal-Oriented
+3. Planning
+4. Reasoning
+5. Adaptability
+6. Context Awareness
+
+---
+
+# 1. Autonomy
+
+**Definition**
+
+Autonomy refers to an AI system's ability to make decisions and take actions on its own to achieve a given goal without requiring step-by-step human instructions.
+
+## Facets of Autonomy
+
+- Execution
+- Decision Making
+- Tool Usage
+
+## Controlling Autonomy
+
+Since autonomous systems can be risky, they need appropriate controls.
+
+Common control mechanisms include:
+
+- Permission Scope
+- Human in the Loop (HITL)
+- Override Controls
+- Guardrails / Policies
+
+---
+
+# 2. Goal-Oriented
+
+**Definition**
+
+Being goal-oriented means that the AI system operates with a persistent objective in mind and continuously directs its actions toward achieving that objective rather than simply responding to isolated prompts.
+
+## Key Points
+
+- Goals act as a compass for autonomy.
+- Goals may come with constraints.
+- Goals are stored in the agent's core memory.
+- Goals can be modified when required.
+
+---
+
+# 3. Planning
+
+**Definition**
+
+Planning is the agent's ability to break down a high-level goal into a structured sequence of actions or sub-goals and determine the best path to achieve the desired outcome.
+
+## Planning Process
+
+### Step 1: Generate Multiple Candidate Plans
+
+Create several possible approaches for solving the problem.
+
+### Step 2: Evaluate Each Plan
+
+Each plan is evaluated based on factors such as:
+
+- Efficiency
+- Tool availability
+- Cost
+- Risk
+- Alignment with the goal
+
+### Step 3: Select the Best Plan
+
+The final plan may be selected using:
+
+- Human in the Loop (HITL)
+- A pre-programmed policy
+
+---
+
+# 4. Reasoning
+
+**Definition**
+
+Reasoning is the cognitive process through which an Agentic AI system interprets information, draws conclusions, and makes decisions both while planning ahead and while executing actions in real time.
+
+## Reasoning During Planning
+
+- Goal Decomposition
+- Tool Selection
+- Resource Estimation
+
+## Reasoning During Execution
+
+- Decision Making
+- HITL Handling
+- Error Handling
+
+---
+
+# 5. Adaptability
+
+**Definition**
+
+Adaptability is the agent's ability to modify its plans, strategies, or actions in response to unexpected conditions while remaining aligned with the original goal.
+
+## Conditions That Trigger Adaptation
+
+- Failures
+- External Feedback
+- Changing Goals
+
+---
+
+# 6. Context Awareness
+
+**Definition**
+
+Context awareness is the agent's ability to understand, retain, and utilize relevant information from the ongoing task, past interactions, user preferences, and environmental cues to make better decisions throughout a multi-step process.
+
+## Types of Context
+
+- Original Goal
+- Progress So Far & Interaction History
+- Environment State
+- Tool Responses
+- User-Specific Preferences
+- Policies or Guardrails
+
+## Memory in Context Awareness
+
+Context awareness is implemented using memory systems.
+
+### Short-Term Memory
+
+Stores information relevant to the current task or conversation.
+
+### Long-Term Memory
+
+Stores persistent knowledge such as user preferences, previous interactions, and learned information that can be reused across future tasks.
+
+---
+# Components 
+
+### 1. Brain
+- Generally its a LLM 
+- Goal Interpretation
+- Planning
+- Reasoning
+- Tool Selection
+- Communication 
+
+### 2. Orchestrator (Like a project manager of agentic ai system)
+- Task Sequencing
+- Conditional Routing
+- Retry Logic
+- Looping and Iteration
+- Delegation
+
+### 3. Tools
+- External Actions
+- Knowledge Base Access
+
+### 4. Memory
+- Short-Term Memory
+- Long-Term Memory
+- State Tracking
+
+### 5. Supervisor
+- Approval Requests (HITL)
+- Guardrails Enforcement
+- Edge Case Escalation 
+
+---
+# LangChain Recap
+
+## What is LangChain?
+
+LangChain is an open-source framework designed to simplify the development of applications powered by Large Language Models (LLMs).
+
+It provides modular building blocks that enable developers to create sophisticated LLM-based workflows with ease.
+
+## Core Components of LangChain
+
+1. **Models**
+   - Provides a unified interface to interact with different LLM providers.
+
+2. **Prompts**
+   - Helps design, manage, and reuse prompts effectively.
+
+3. **Retrievers**
+   - Fetches relevant documents from a vector store for Retrieval-Augmented Generation (RAG).
+
+4. **Chains** ⭐
+   - LangChain's biggest offering.
+   - Allows multiple components to be connected together into a sequential workflow.
+
+---
+
+# What Can You Build with LangChain?
+
+- Simple conversational applications (Chatbots)
+- Text summarizers
+- Multi-step workflows
+- Retrieval-Augmented Generation (RAG) applications
+- Basic-level AI agents
+
+---
+
+# Building Effective Agents
+
+> **Reference:**  
+> [Anthropic - Building Effective Agents](https://www.anthropic.com/engineering/building-effective-agents)
+
+## Workflow vs Agent
+
+### Workflow
+
+A **workflow** is a system where LLMs and tools are orchestrated through **predefined code paths**.
+
+Characteristics:
+- Fixed execution flow
+- Predictable behavior
+- Logic is explicitly defined by the developer
+
+---
+
+### Agent
+
+An **agent** is a system where the LLM dynamically decides:
+- What actions to perform
+- Which tools to use
+- In what order to execute them
+
+The LLM maintains control over how the task is accomplished instead of following a fixed sequence.
+
+---
+
+# Challenges of Building Complex Workflows in LangChain
+
+Consider a workflow such as:
+
+> **Collect user requirements → Screen candidates → Conduct interviews → Hire the selected candidate**
+
+Such workflows are difficult to implement using only LangChain because they involve branching, looping, retries, state management, and human intervention.
+
+## Challenges
+
+### 1. Conditional Branching
+
+LangChain works best with **linear workflows**.
+
+Handling multiple execution paths requires additional custom logic (Glue Code).
+
+---
+
+### 2. Loops
+
+Implementing iterative workflows (retry until success, repeated evaluations, etc.) requires manual coding.
+
+---
+
+### 3. Jumps
+
+Moving execution directly from one step to another (non-linear execution) is not naturally supported.
+
+---
+
+### 4. State Handling
+
+LangChain does not provide a built-in mechanism for maintaining workflow state.
+
+You need to write custom Python code to:
+
+- Store state
+- Update state
+- Pass state between different chain executions
+
+---
+
+### 5. Glue Code
+
+As workflows become more complex, developers end up writing a large amount of **glue code** to connect different components.
+
+This makes the codebase:
+- Harder to understand
+- Harder to maintain
+- More difficult to debug
+
+---
+
+### 6. Event-Driven Execution
+
+LangChain does not natively support event-driven workflows where execution is triggered by external events.
+
+---
+
+### 7. Fault Tolerance
+
+LangChain provides very limited built-in fault tolerance.
+
+In contrast, **LangGraph** supports:
+- Automatic retries for recoverable failures
+- Recovery mechanisms for larger workflow failures
+
+---
+
+### 8. Human in the Loop (HITL)
+
+Human approval or intervention is not a built-in feature in LangChain and must be implemented manually.
+
+---
+
+### 9. Nested Workflows
+
+LangChain does not support nested workflows.
+
+**LangGraph** introduces **Subgraphs**, which allow:
+
+- Reusable workflows
+- Multi-agent architectures
+- Better modularity
+
+---
+
+### 10. Observability
+
+LangChain can be monitored using **LangSmith**, but it only tracks LangChain components.
+
+It **cannot observe** the custom glue code written by developers, resulting in only **partial observability**.
+
+**LangGraph**, on the other hand, provides **full observability** by tracking:
+
+- Every node
+- Every edge
+- State transitions
+- Execution flow
+
+---
+
+# Why **LangGraph**?
+
+**LangGraph** addresses many of **LangChain's** limitations by providing built-in support for:
+
+- **Native State Management**
+- **Conditional Branching**
+- **Loops**
+- **Non-linear Execution**
+- **Event-driven Workflows**
+- **Fault Tolerance**
+- **Human in the Loop (HITL)**
+- **Nested Workflows** using **Subgraphs**
+- **Full Observability**
+- Better support for **Complex** and **Multi-Agent Systems**
+
+---
+
+# What is **LangGraph**?
+
+**LangGraph** is an **orchestration framework** that enables you to build **stateful**, **multi-step**, and **event-driven workflows** using **Large Language Models (LLMs)**.
+
+It is ideal for designing both:
+
+- **Single-Agent** applications
+- **Multi-Agent** Agentic AI applications
+
+## Think of LangGraph as a **Flowchart Engine for LLMs**
+
+You define:
+
+- **Nodes** → The individual steps or tasks.
+- **Edges** → How those steps are connected.
+- **Transition Logic** → Rules that determine which step executes next.
+
+LangGraph takes care of many workflow concerns automatically, including:
+
+- **State Management**
+- **Conditional Branching**
+- **Looping**
+- **Pausing & Resuming Execution**
+- **Fault Recovery**
+
+These capabilities make it suitable for building **robust**, **production-grade AI systems**.
+
+---
+
+# When Should You Use **LangChain** vs **LangGraph**?
+
+## Use **LangChain** when:
+
+Your application consists of **simple, linear workflows**, such as:
+
+- Prompt Chains
+- Chatbots
+- Text Summarizers
+- Basic Retrieval Systems (RAG)
+
+These workflows generally follow a fixed sequence of steps without complex control flow.
+
+---
+
+## Use **LangGraph** when:
+
+Your application requires **complex, non-linear workflows** involving one or more of the following:
+
+- **Conditional Paths**
+- **Loops**
+- **Human in the Loop (HITL)**
+- **Multi-Agent Coordination**
+- **Asynchronous Execution**
+- **Event-driven Execution**
+- **State Persistence**
+- **Fault Recovery**
+
+LangGraph is designed specifically to orchestrate these advanced workflow patterns.
+
+---
+
+# Should We Still Use **LangChain**?
+
+**Yes.**
+
+**LangGraph is built on top of LangChain—it does not replace it.**
+
+LangChain continues to provide the core building blocks used inside each workflow node, including:
+
+- **ChatOpenAI** (LLMs)
+- **PromptTemplate**
+- **Retrievers**
+- **Document Loaders**
+- **Tools**
+- And many other integrations
+
+**LangGraph** focuses on **workflow orchestration**, while **LangChain** provides the components required to perform the actual work at each step.
+
+> **In simple terms:**
+>
+> - **LangChain = Building Blocks**
+> - **LangGraph = Workflow Engine**
+>
+> They are designed to work **together**, not compete with each other.
+
+# LLM Workflows
+
+## What are LLM Workflows?
+
+LLM workflows are step-by-step execution patterns used to build complex LLM-powered applications. Instead of relying on a single prompt, the task is broken into multiple stages, where each stage performs a specific responsibility.
+
+Each step in a workflow can perform one of the following tasks:
+
+- Prompting
+- Reasoning
+- Tool calling
+- Memory access
+- Decision making
+- Output validation
+
+LLM workflows can be:
+
+- **Linear** – Execute tasks sequentially.
+- **Parallel** – Execute multiple independent tasks simultaneously.
+- **Branched (Routing)** – Choose different execution paths based on the input.
+- **Looped (Iterative)** – Repeat steps until a desired result is achieved.
+
+These workflow patterns enable advanced capabilities such as:
+
+- Retry mechanisms
+- Multi-agent communication
+- Tool-augmented reasoning
+- Self-evaluation and refinement
+- Dynamic task planning
+
+---
+
+# Common LLM Workflow Patterns
+
+## 1. Prompt Chaining
+
+Prompt chaining is the simplest workflow pattern where the output of one prompt becomes the input for the next prompt. Each step performs a well-defined task, making complex problems easier to solve.
+
+### Example
+
+Suppose you want to generate a technical blog.
+
+1. Generate an outline.
+2. Expand the outline into sections.
+3. Proofread the content.
+4. Optimize it for SEO.
+5. Produce the final blog.
+
+Each prompt depends on the output of the previous prompt.
+
+![Prompt Chaining](images_md/Prompt_Chaining.png)
+
+---
+
+## 2. Routing
+
+Routing is used when different inputs require different processing paths. A router (usually another LLM or a classifier) decides which workflow should handle the request.
+
+### Example
+
+A customer support chatbot receives different types of queries.
+
+- Billing issues → Billing workflow
+- Technical problems → Technical support workflow
+- Refund requests → Refund workflow
+- Product information → Sales workflow
+
+Instead of sending every request through the same process, the router selects the most appropriate workflow.
+
+![Routing](images_md/Routing.png)
+
+---
+
+## 3. Parallelization
+
+Parallelization is used when multiple independent subtasks can be executed simultaneously. Since the subtasks do not depend on one another, they can run in parallel, reducing overall execution time.
+
+### Example: YouTube Content Moderation
+
+When a user uploads a video, several moderation checks can run at the same time:
+
+- Check whether the content follows community guidelines.
+- Detect misleading or false information.
+- Detect sexual or explicit content.
+- Detect hate speech or abusive language.
+- Detect violence or graphic content.
+
+Since these checks are independent, they are executed in parallel, and their results are combined to make the final moderation decision.
+
+> **Note:** Parallelization works best when the subtasks are **static** and known in advance.
+
+![Parallelization](images_md/Parallelization.png)
+
+---
+
+## 4. Orchestrator-Workers
+
+In this workflow, an **Orchestrator** first analyzes the user's request and dynamically decides:
+
+- Which workers should be used.
+- What tasks each worker should perform.
+- How the final result should be combined.
+
+Unlike parallelization, the subtasks are **not predefined**. They are generated dynamically based on the user's request.
+
+### Example
+
+A user asks:
+
+> "Create a report on Artificial Intelligence in Healthcare."
+
+The orchestrator may decide to:
+
+- Worker 1 → Search for the latest research papers.
+- Worker 2 → Collect recent news related to AI in healthcare.
+- Worker 3 → Gather market statistics.
+- Worker 4 → Generate charts and summarize findings.
+
+If the topic is related to recent events, the orchestrator can instruct one of the workers to retrieve information from news sources. For another topic, it may choose an entirely different set of workers.
+
+This makes the workflow flexible and adaptive.
+
+![Orchestrator Workers](images_md/Orchestrator.png)
+
+---
+
+## 5. Evaluator-Optimizer
+
+The Evaluator-Optimizer workflow is an iterative process where one model generates an output, and another model (or the same model) evaluates it against predefined criteria. If the output is not satisfactory, feedback is provided, and the content is regenerated.
+
+This loop continues until the output meets the required quality.
+
+### Example: Blog Generation
+
+Generating a high-quality blog usually requires multiple iterations.
+
+1. Generate the first draft.
+2. Evaluate the draft for grammar, clarity, and structure.
+3. Provide feedback.
+4. Rewrite the blog based on the feedback.
+5. Repeat until the blog satisfies all quality requirements.
+
+This workflow is particularly useful for:
+
+- Blog writing
+- Code generation
+- Report writing
+- Creative writing
+- Documentation generation
+
+![Prompt Chaining](images_md/Evaluator_Optimizer.png)
+
+---
+
+# LangGraph Fundamentals
+
+## Graphs, Nodes, and Edges
+
+Let's understand the core concepts of **LangGraph** using a UPSC essay evaluation workflow.
+
+### Example Problem
+
+The system generates an essay topic, collects the student's submission, and evaluates it in parallel on **depth of analysis**, **language quality**, and **clarity of thought**. Based on the combined score, it either provides feedback for improvement or approves the essay.
+
+## Workflow
+
+### 1. Generate Topic
+- The system generates a relevant **UPSC-style essay topic**.
+- The topic is presented to the student.
+
+### 2. CollectEssay
+- The student writes the essay.
+- The essay is submitted to the system.
+
+### 3. EvaluateEssay (Parallel Evaluation Block)
+
+The essay is evaluated by **three independent tasks running in parallel**.
+
+#### EvaluateDepth
+Analyzes:
+- Depth of analysis
+- Strength of arguments
+- Critical thinking
+
+#### EvaluateLanguage
+Evaluates:
+- Grammar
+- Vocabulary
+- Fluency
+- Tone
+
+#### EvaluateClarity
+Assesses:
+- Coherence
+- Logical flow
+- Clarity of thought
+
+### 4. AggregateResults
+- Combines the three evaluation scores.
+- Generates a total score (e.g., **out of 15**).
+
+### 5. Conditional Routing
+
+Based on the total score:
+
+- **If the score meets the threshold**
+  - → Go to **ShowSuccess**
+
+- **If the score is below the threshold**
+  - → Go to **GiveFeedback**
+
+### 6. GiveFeedback
+- Provides targeted suggestions for improvement.
+- Highlights weak areas based on the evaluation.
+
+### 7. CollectRevision (Optional Loop)
+- The student revises the essay.
+- The revised essay is submitted again.
+- The workflow loops back to **EvaluateEssay** for re-evaluation.
+
+### 8. ShowSuccess
+- Congratulates the student.
+- Ends the workflow.
+
+---
+
+![UPSC Essay Problem](images_md/upsc_essay_problem.png)
+
+---
+
+# LangGraph Concepts
+
+A **LangGraph** workflow is represented as a **graph** consisting of:
+
+- **Nodes**
+- **Edges**
+- **State**
+
+---
+
+## Nodes
+
+A **node** is simply a **Python function**.
+
+Each node performs a specific task, such as:
+
+- Generating a topic
+- Collecting an essay
+- Evaluating language
+- Aggregating scores
+- Giving feedback
+
+A node:
+
+- Reads data from the shared state.
+- Performs some computation.
+- Returns updates to the state.
+
+Example nodes from the essay workflow:
+
+- `GenerateTopic`
+- `CollectEssay`
+- `EvaluateDepth`
+- `EvaluateLanguage`
+- `EvaluateClarity`
+- `AggregateResults`
+- `GiveFeedback`
+- `ShowSuccess`
+
+---
+
+## Edges
+
+**Edges define how nodes are executed.**
+
+They determine the flow of execution between nodes.
+
+LangGraph supports multiple types of edges.
+
+### Sequential Edge
+
+Runs one node after another.
+
+```text
+GenerateTopic
+      ↓
+CollectEssay
+```
+
+### Parallel Edge
+
+Runs multiple nodes simultaneously.
+
+```text
+              EvaluateDepth
+            /
+CollectEssay
+            \
+              EvaluateLanguage
+            \
+              EvaluateClarity
+```
+
+Parallel execution improves performance because independent tasks do not wait for one another.
+
+### Conditional Edge
+
+Routes execution based on some condition.
+
+```text
+Total Score >= Threshold
+        ↓
+   ShowSuccess
+
+Total Score < Threshold
+        ↓
+  GiveFeedback
+```
+
+### Loop Edge
+
+Allows the workflow to repeat until a condition is satisfied.
+
+```text
+GiveFeedback
+      ↓
+CollectRevision
+      ↓
+EvaluateEssay
+      ↓
+AggregateResults
+```
+
+This continues until the essay reaches the required score.
+
+---
+
+# State
+
+State is one of the most important concepts in LangGraph.
+
+## What is State?
+
+**State is the shared memory that flows through your workflow.**
+
+It stores all the information required by different nodes as the graph executes.
+
+Instead of passing variables manually between functions, every node reads from and writes to the shared state.
+
+As the workflow progresses, the state gets updated.
+
+---
+
+## Example
+
+In the UPSC essay workflow, the state may store:
+
+- Essay topic
+- Essay text
+- Individual evaluation scores
+- Total score
+- Feedback
+- Number of evaluation attempts
+
+Every node can access and modify this shared state.
+
+---
+
+## Example State
+
+```python
+from typing import Annotated
+from operator import add
+from typing_extensions import TypedDict
+
+class EssayState(TypedDict):
+    topic: str
+    essay_text: str
+
+    depth_score: int
+    language_score: int
+    clarity_score: int
+
+    total_score: int
+
+    feedback: Annotated[list[str], add]
+
+    evaluation_round: int
+```
+
+---
+
+## Why State is Useful
+
+Instead of writing:
+
+```python
+evaluate(essay, topic, score, feedback, ...)
+```
+
+every node simply receives:
+
+```python
+state
+```
+
+and returns only the fields it wants to update.
+
+This makes workflows:
+
+- Cleaner
+- Easier to maintain
+- Easier to extend
+- Suitable for complex AI pipelines
+
+---
+
+# Reducers
+
+Reducers define **how updates from nodes are applied to the shared state.**
+
+When multiple nodes update the same state key, LangGraph uses a reducer to decide how those updates should be combined.
+
+Reducers are especially important in **parallel workflows**.
+
+---
+
+## Why Reducers are Needed
+
+Suppose three parallel nodes produce feedback.
+
+Without reducers:
+
+```text
+Node A → ["Good introduction"]
+
+Node B → ["Grammar mistakes"]
+
+Node C → ["Improve conclusion"]
+```
+
+Only one update might survive.
+
+With a reducer:
+
+```text
+[
+    "Good introduction",
+    "Grammar mistakes",
+    "Improve conclusion"
+]
+```
+
+All updates are merged correctly.
+
+---
+
+## Reducer Behavior
+
+Each state key can define its own reducer.
+
+Some common behaviors are:
+
+### Replace (Default)
+
+The new value replaces the existing value.
+
+```python
+score: int
+```
+
+---
+
+### Append / Add
+
+The new values are appended to the existing collection.
+
+```python
+feedback: Annotated[list[str], add]
+```
+
+Here, `add` tells LangGraph to append new feedback items instead of replacing the existing list.
+
+---
+
+### Custom Reducer
+
+You can also define your own reducer function if you want custom merge logic.
+
+---
+
+# Supersteps in LangGraph
+
+LangGraph executes workflows using the concept of **Supersteps**, inspired by **Google's Pregel** graph-processing model.
+
+A **Superstep** is a synchronization phase where:
+
+1. All eligible nodes execute simultaneously.
+2. Each node reads the current state.
+3. Each node produces state updates.
+4. LangGraph merges the updates using reducers.
+5. The updated state becomes available to the next Superstep.
+
+Example:
+
+```text
+Superstep 1
+------------
+GenerateTopic
+
+Superstep 2
+------------
+CollectEssay
+
+Superstep 3
+------------
+EvaluateDepth
+EvaluateLanguage
+EvaluateClarity
+(Parallel)
+
+Superstep 4
+------------
+AggregateResults
+
+Superstep 5
+------------
+Conditional Routing
+```
+
+Parallel nodes in the same Superstep **cannot see each other's updates** until the Superstep finishes.
+
+This synchronization ensures deterministic execution of the graph.
+
+---
+
+# Summary
+
+- A **Graph** represents the entire workflow.
+- **Nodes** are Python functions that perform specific tasks.
+- **Edges** define the execution flow:
+  - Sequential
+  - Parallel
+  - Conditional
+  - Loop
+- **State** is the shared memory passed between all nodes.
+- **Reducers** determine how multiple state updates are merged.
+- **Supersteps** allow LangGraph to execute parallel nodes efficiently while synchronizing state updates between execution phases.
+
+# Persistence in LangGraph
+
+## What is Persistence?
+
+**Persistence** in LangGraph is the ability to **save the state of a workflow and restore it later**.
+
+This means a graph can:
+
+- pause execution,
+- resume from the same point,
+- survive application restarts,
+- keep conversation or workflow history,
+- support long-running and multi-user applications.
+
+In simple words:
+
+> Persistence = "Remember the workflow state so it can continue later."
+
+---
+
+## Where is the state stored?
+
+During development, state can be stored **in memory (RAM)**.
+
+For production, it is usually stored in a **database** such as:
+
+- SQLite
+- PostgreSQL
+- Redis
+- MongoDB (custom implementation)
+
+| Environment | Storage |
+|---|---|
+| **Development** | RAM / `MemorySaver` |
+| **Production** | SQLite / PostgreSQL / Redis / other persistent DBs |
+---
+
+## What gets saved?
+
+LangGraph stores the **state after every super-step**.
+
+A **super-step** is a round of execution in which **all active nodes finish running** before the next round begins.
+
+For example, suppose the graph state is:
+
+```python
+from typing import TypedDict, Annotated
+from operator import add
+
+class State(TypedDict):
+    numbers: Annotated[list[int], add]
+```
+
+As the graph runs, the state may evolve like this:
+
+| Checkpoint | State |
+|---|---|
+| **CP1** | `[1]` |
+| **CP2** | `[1, 2]` |
+| **CP3** | `[1, 2, 3, 4, 5]` |
+
+Here, **CP1, CP2, and CP3 are checkpoints automatically created by the checkpointer** after each super-step.
+
+---
+
+# Checkpointers in Persistence
+
+## What is a Checkpointer?
+
+A **checkpointer** is the component responsible for **saving and loading graph state**.
+
+It acts like an auto-save system in a video game.
+
+<Highlight value="Without a checkpointer, the graph forgets everything after execution ends."/>
+
+---
+
+## How it works
+
+<CodeBlock language="text" content="Node execution
+      ↓
+State updated
+      ↓
+Checkpointer saves snapshot
+      ↓
+Next node runs"/>
+
+After every **super-step**, LangGraph asks the checkpointer to store a snapshot of the current state.
+
+---
+
+## Simple Example (Memory Persistence)
+
+```python
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph
+
+# Create a checkpointer
+checkpointer = MemorySaver()
+
+# Compile graph with persistence enabled
+graph = builder.compile(checkpointer=checkpointer)
+```
+
+`MemorySaver` stores checkpoints in **RAM**, so the state is available while the application is running.
+
+---
+
+## Resume Example
+
+```python
+config = {"configurable": {"thread_id": "user-1"}}
+
+# First run
+graph.invoke(
+    {"numbers": [1]},
+    config=config
+)
+
+# Resume later with the same thread_id
+graph.invoke(
+    {"numbers": [2]},
+    config=config
+)
+```
+
+### What happens?
+
+- First run saves: `[1]`
+- Second run loads the previous checkpoint and updates it to: `[1, 2]`
+
+Because the **same `thread_id` (`user-1`)** is used, LangGraph restores the previous state automatically and continues the workflow instead of starting from scratch.
+
+---
+
+## Easy Analogy
+
+Think of writing a document:
+
+- You type a paragraph → **state changes**
+- Auto-save runs → **checkpoint created**
+- Laptop shuts down → **application stops**
+- You reopen the document → **state restored from checkpoint**
+
+LangGraph persistence works in the same way.
+
+
+---
+
+# Threads in Persistence
+
+## Definition (Simple English)
+
+A **thread** is a **unique ID that represents one conversation or one workflow session**.
+
+All checkpoints belonging to the same thread are grouped together.
+
+<Highlight value="Thread = the identity of a running workflow."/>
+
+For example:
+
+- `thread_id = "user-1"` → Alice's workflow
+- `thread_id = "user-2"` → Bob's workflow
+
+Their states are stored separately.
+
+---
+
+## Why are threads needed?
+
+Without threads, all users would share the same saved state.
+
+Threads provide **isolation** between workflow sessions.
+
+<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-1" color="info"/><Text weight="semibold">numbers = [1, 2]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row><Divider spacing={3}/><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-2" color="success"/><Text weight="semibold">numbers = [10, 20]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row></Box>
+
+---
+
+# Example with Two Graph Sessions
+
+## Graph setup
+
+```python
+from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+```
+
+---
+
+## Session 1 (User A)
+
+```python
+config_a = {"configurable": {"thread_id": "user-A"}}
+
+graph.invoke(
+    {"numbers": [1, 2]},
+    config=config_a
+)
+```
+
+Saved state for **user-A**:
+
+```python
+{"numbers": [1, 2]}
+```
+
+---
+
+## Session 2 (User B)
+
+```python
+config_b = {"configurable": {"thread_id": "user-B"}}
+
+graph.invoke(
+    {"numbers": [10, 20]},
+    config=config_b
+)
+```
+
+Saved state for **user-B**:
+
+```python
+{"numbers": [10, 20]}
+```
+
+---
+
+## Resume User A
+
+```python
+graph.invoke(
+    {"numbers": [3]},
+    config=config_a
+)
+```
+
+Result:
+
+```python
+{"numbers": [1, 2, 3]}
+```
+
+LangGraph automatically loaded the previous checkpoint for **user-A** and appended `3`.
+
+---
+
+# Visual Flow
+
+```text
+Thread: user-A
+
+Start
+  │
+  ├── CP1 → [1]
+  ├── CP2 → [1, 2]
+  └── CP3 → [1, 2, 3]
+
+
+Thread: user-B
+
+Start
+  │
+  ├── CP1 → [10]
+  └── CP2 → [10, 20]
+```
+
+Each thread has **its own independent checkpoint history**.
+
+---
+
+# Key Points to Remember
+
+- **Persistence** saves and restores workflow state.
+- **Checkpointer** performs the actual save/load operations.
+- State is saved after every **super-step**.
+- **MemorySaver** stores state in RAM (temporary).
+- Production systems should use a **persistent database**.
+- **Threads** separate workflow sessions using a unique `thread_id`.
+- Using the same `thread_id` allows the graph to **resume from the last checkpoint**.
+
+---
+
+# One-Line Revision
+
+> **Persistence remembers the graph state, the checkpointer stores it, and the `thread_id` tells LangGraph which saved workflow to continue.**
+
+---
+
+Yesterday 11:10 PM
+Format the structure  and also compel the incomple info about the persistence in langgraph and add the exaple to make the undersant simple and give me the md code only
+
+---
+What is persistence
+
+- Persistence is LangGraph refers to the ability to save and restore the state of a workflow over time.
+
+- can be save in Ram and in database in production
+
+- store value at each iteration
+
+- Example: 
+
+-- Checkpointers in Persistence
+
+- with help of checkpointers we get persistence in langGraph
+
+- we save the checkpointeres at each super step
+
+- Ex:
+at first the state is 
+numbers: [list[int], add]
+
+- at cp1 the numbers is 1
+- at cp2 the numbers is [1,2]
+- at cp3 the numbers is [1,2,3,4,5] (if the flow is paralled node working)
+
+---- 
+Threads in Persistence
+
+- defination (simplest and in english)
+
+- Example with 2 graphs example 
+
+
+# Persistence in LangGraph
+
+## What is Persistence?
+
+**Persistence** in LangGraph is the ability to **save the state of a workflow and restore it later**.
+
+This means a graph can:
+
+- pause execution,
+- resume from the same point,
+- survive application restarts,
+- keep conversation or workflow history,
+- support long-running and multi-user applications.
+
+In simple words:
+
+> Persistence = "Remember the workflow state so it can continue later."
+
+---
+
+## Where is the state stored?
+
+During development, state can be stored **in memory (RAM)**.
+
+For production, it is usually stored in a **database** such as:
+
+- SQLite
+- PostgreSQL
+- Redis
+- MongoDB (custom implementation)
+
+<Table columnSizing="equal" rowDivider={{"size":1,"color":"default"}}><Table.Row header><Table.Cell>Environment</Table.Cell><Table.Cell>Storage</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Development</Text></Table.Cell><Table.Cell>RAM / MemorySaver</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Production</Text></Table.Cell><Table.Cell>SQLite / PostgreSQL / Redis / other persistent DBs</Table.Cell></Table.Row></Table>
+
+---
+
+## What gets saved?
+
+LangGraph stores the **state after every super-step** (a step where all active nodes for that round finish execution).
+
+For example, if the state is:
+
+<CodeBlock language="python" content="from typing import Annotated
+from operator import add
+
+class State(TypedDict):
+    numbers: Annotated[list[int], add]"/>
+
+As the graph runs, the state may evolve like this:
+
+<Table columnSizing="equal" rowDivider={{"size":1,"color":"default"}}><Table.Row header><Table.Cell>Checkpoint</Table.Cell><Table.Cell>State</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">CP1</Text></Table.Cell><Table.Cell><Code value="[1]"/></Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">CP2</Text></Table.Cell><Table.Cell><Code value="[1, 2]"/></Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">CP3</Text></Table.Cell><Table.Cell><Code value="[1, 2, 3, 4, 5]"/></Table.Cell></Table.Row></Table>
+
+Here, **CP1, CP2, and CP3 are checkpoints** automatically created by the checkpointer.
+
+---
+
+# Checkpointers in Persistence
+
+## What is a Checkpointer?
+
+A **checkpointer** is the component responsible for **saving and loading graph state**.
+
+It acts like an auto-save system in a video game.
+
+<Highlight value="Without a checkpointer, the graph forgets everything after execution ends."/>
+
+---
+
+## How it works
+
+<CodeBlock language="text" content="Node execution
+      ↓
+State updated
+      ↓
+Checkpointer saves snapshot
+      ↓
+Next node runs"/>
+
+After every **super-step**, LangGraph asks the checkpointer to store a snapshot of the current state.
+
+---
+
+## Simple Example (Memory Persistence)
+
+<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph
+
+# Create a checkpointer
+checkpointer = MemorySaver()
+
+# Compile graph with persistence
+graph = builder.compile(checkpointer=checkpointer)"/>
+
+Now the graph can resume from previously saved checkpoints.
+
+---
+
+## Resume Example
+
+<CodeBlock language="python" content="config = {"configurable": {"thread_id": "user-1"}}
+
+# First run
+graph.invoke({"numbers": [1]}, config=config)
+
+# Later...
+graph.invoke({"numbers": [2]}, config=config)"/>
+
+Because the same **thread_id** is used, the graph loads the previous state and continues execution.
+
+---
+
+# Easy Analogy
+
+Think of writing a document:
+
+<List><List.Item>You type a paragraph → **state changes**</List.Item><List.Item>Auto-save runs → **checkpoint created**</List.Item><List.Item>Laptop shuts down → application stops</List.Item><List.Item>You reopen the document → **state restored from checkpoint**</List.Item></List>
+
+LangGraph persistence works in the same way.
+
+---
+
+# Threads in Persistence
+
+## Definition (Simple English)
+
+A **thread** is a **unique ID that represents one conversation or one workflow session**.
+
+All checkpoints belonging to the same thread are grouped together.
+
+<Highlight value="Thread = the identity of a running workflow."/>
+
+For example:
+
+- `thread_id = "user-1"` → Alice's workflow
+- `thread_id = "user-2"` → Bob's workflow
+
+Their states are stored separately.
+
+---
+
+## Why are threads needed?
+
+Without threads, all users would share the same saved state.
+
+Threads provide **isolation** between workflow sessions.
+
+<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-1" color="info"/><Text weight="semibold">numbers = [1, 2]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row><Divider spacing={3}/><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-2" color="success"/><Text weight="semibold">numbers = [10, 20]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row></Box>
+
+---
+
+# Example with Two Graph Sessions
+
+## Graph setup
+
+<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+graph = builder.compile(checkpointer=checkpointer)"/>
+
+---
+
+## Session 1 (User A)
+
+<CodeBlock language="python" content="config_a = {"configurable": {"thread_id": "user-A"}}
+
+graph.invoke(
+    {"numbers": [1, 2]},
+    config=config_a
+)"/>
+
+Saved state for **user-A**:
+
+<CodeBlock language="python" content="{"numbers": [1, 2]}"/>
+
+---
+
+## Session 2 (User B)
+
+<CodeBlock language="python" content="config_b = {"configurable": {"thread_id": "user-B"}}
+
+graph.invoke(
+    {"numbers": [10, 20]},
+    config=config_b
+)"/>
+
+Saved state for **user-B**:
+
+<CodeBlock language="python" content="{"numbers": [10, 20]}"/>
+
+---
+
+## Resume User A
+
+<CodeBlock language="python" content="graph.invoke(
+    {"numbers": [3]},
+    config=config_a
+)"/>
+
+Result:
+
+<CodeBlock language="python" content="{"numbers": [1, 2, 3]}"/>
+
+LangGraph automatically loaded the previous checkpoint for **user-A** and appended `3`.
+
+---
+
+# Visual Flow
+
+<CodeBlock language="text" content="Thread: user-A
+
+Start
+  │
+  ├── CP1 → [1]
+  ├── CP2 → [1, 2]
+  └── CP3 → [1, 2, 3]
+
+
+Thread: user-B
+
+Start
+  │
+  ├── CP1 → [10]
+  └── CP2 → [10, 20]"/>
+
+Each thread has **its own independent checkpoint history**.
+
+---
+
+# Key Points to Remember
+
+<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><List gap={2}><List.Item><Text inline weight="semibold">Persistence</Text> saves and restores workflow state.</List.Item><List.Item><Text inline weight="semibold">Checkpointer</Text> performs the actual save/load operations.</List.Item><List.Item>State is saved after every <Text inline weight="semibold">super-step</Text>.</List.Item><List.Item><Text inline weight="semibold">MemorySaver</Text> stores state in RAM (temporary).</List.Item><List.Item>Production systems should use a <Text inline weight="semibold">persistent database</Text>.</List.Item><List.Item><Text inline weight="semibold">Threads</Text> separate workflow sessions using a unique <Code value="thread_id"/>.</List.Item><List.Item>Using the same <Code value="thread_id"/> allows the graph to <Text inline weight="semibold">resume from the last checkpoint</Text>.</List.Item></List></Box>
+
+---
+
+# One-Line Revision
+
+<Highlight value="Persistence remembers the graph state, the checkpointer stores it, and the thread_id tells LangGraph which saved workflow to continue."/>
+the below code are not visible in preview of the md file in vs code 
+
+<Table columnSizing="equal" rowDivider={{"size":1,"color":"default"}}><Table.Row header><Table.Cell>Environment</Table.Cell><Table.Cell>Storage</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Development</Text></Table.Cell><Table.Cell>RAM / MemorySaver</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Production</Text></Table.Cell><Table.Cell>SQLite / PostgreSQL / Redis / other persistent DBs</Table.Cell></Table.Row></Table>
+
+<List.Item>You type a paragraph → state changes</List.Item><List.Item>Auto-save runs → checkpoint created</List.Item><List.Item>Laptop shuts down → application stops</List.Item><List.Item>You reopen the document → state restored from checkpoint</List.Item>
+
+<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}>numbers = [1, 2]numbers = [10, 20]
+Graph setup
+<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver() graph = builder.compile(checkpointer=checkpointer)"/>
+
+Session 1 (User A)
+<CodeBlock language="python" content="config_a = {"configurable": {"thread_id": "user-A"}}
+
+graph.invoke( {"numbers": [1, 2]}, config=config_a )"/>
+
+Saved state for user-A:
+
+<CodeBlock language="python" content="{"numbers": [1, 2]}"/>
+
+Session 2 (User B)
+<CodeBlock language="python" content="config_b = {"configurable": {"thread_id": "user-B"}}
+
+graph.invoke( {"numbers": [10, 20]}, config=config_b )"/>
+
+Saved state for user-B:
+
+<CodeBlock language="python" content="{"numbers": [10, 20]}"/>
+
+Resume User A
+<CodeBlock language="python" content="graph.invoke( {"numbers": [3]}, config=config_a )"/>
+
+Result:
+
+<CodeBlock language="python" content="{"numbers": [1, 2, 3]}"/>
+
+LangGraph automatically loaded the previous checkpoint for user-A and appended 3.
+
+Visual Flow
+<CodeBlock language="text" content="Thread: user-A
+
+Start │ ├── CP1 → [1] ├── CP2 → [1, 2] └── CP3 → [1, 2, 3]
+
+Thread: user-B
+
+Start │ ├── CP1 → [10] └── CP2 → [10, 20]"/>
+
+Each thread has its own independent checkpoint history.
+
+Key Points to Remember
+<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><List.Item>Persistence saves and restores workflow state.</List.Item><List.Item>Checkpointer performs the actual save/load operations.</List.Item><List.Item>State is saved after every super-step.</List.Item><List.Item>MemorySaver stores state in RAM (temporary).</List.Item><List.Item>Production systems should use a persistent database.</List.Item><List.Item>Threads separate workflow sessions using a unique .</List.Item><List.Item>Using the same allows the graph to resume from the last checkpoint.</List.Item>
+
+One-Line Revision
+## Where is the state stored?
+
+During development, state can be stored **in memory (RAM)**.
+
+For production, it is usually stored in a **database** such as:
+
+- SQLite
+- PostgreSQL
+- Redis
+- MongoDB (custom implementation)
+
+| Environment | Storage |
+|---|---|
+| **Development** | RAM / `MemorySaver` |
+| **Production** | SQLite / PostgreSQL / Redis / other persistent DBs |
+
+---
+
+## Easy Analogy
+
+Think of writing a document:
+
+- You type a paragraph → **state changes**
+- Auto-save runs → **checkpoint created**
+- Laptop shuts down → **application stops**
+- You reopen the document → **state restored from checkpoint**
+
+LangGraph persistence works in the same way.
+
+---
+
+## Why are threads needed?
+
+Without threads, all users would share the same saved state.
+
+Threads provide **isolation** between workflow sessions.
+
+### Thread `user-1`
+
+- `numbers = [1, 2]`
+
+### Thread `user-2`
+
+- `numbers = [10, 20]`
+
+Both states are stored **separately**.
+
+---
+
+# Example with Two Graph Sessions
+
+## Graph setup
+
+```python
+from langgraph.checkpoint.memory import MemorySaver
+
+checkpointer = MemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+```
+
+---
+
+## Session 1 (User A)
+
+```python
+config_a = {"configurable": {"thread_id": "user-A"}}
+
+graph.invoke(
+    {"numbers": [1, 2]},
+    config=config_a
+)
+```
+
+Saved state for **user-A**:
+
+```python
+{"numbers": [1, 2]}
+```
+
+---
+
+## Session 2 (User B)
+
+```python
+config_b = {"configurable": {"thread_id": "user-B"}}
+
+graph.invoke(
+    {"numbers": [10, 20]},
+    config=config_b
+)
+```
+
+Saved state for **user-B**:
+
+```python
+{"numbers": [10, 20]}
+```
+
+---
+
+## Resume User A
+
+```python
+graph.invoke(
+    {"numbers": [3]},
+    config=config_a
+)
+```
+
+Result:
+
+```python
+{"numbers": [1, 2, 3]}
+```
+
+LangGraph automatically loaded the previous checkpoint for **user-A** and appended `3`.
+
+---
+
+# Visual Flow
+
+```text
+Thread: user-A
+
+Start
+  │
+  ├── CP1 → [1]
+  ├── CP2 → [1, 2]
+  └── CP3 → [1, 2, 3]
+
+
+Thread: user-B
+
+Start
+  │
+  ├── CP1 → [10]
+  └── CP2 → [10, 20]
+```
+
+Each thread has **its own independent checkpoint history**.
+
+---
+
+# Key Points to Remember
+
+- **Persistence** saves and restores workflow state.
+- **Checkpointer** performs the actual save/load operations.
+- State is saved after every **super-step**.
+- **MemorySaver** stores state in RAM (temporary).
+- Production systems should use a **persistent database**.
+- **Threads** separate workflow sessions using a unique `thread_id`.
+- Using the same `thread_id` allows the graph to **resume from the last checkpoint**.
+
+---
+
+# One-Line Revision
+
+> **Persistence remembers the graph state, the checkpointer stores it, and the `thread_id` tells LangGraph which saved workflow to continue.**
+What gets saved?
+LangGraph stores the state after every super-step (a step where all active nodes for that round finish execution).
+
+For example, if the state is:
+
+<CodeBlock language="python" content="from typing import Annotated from operator import add
+
+class State(TypedDict): numbers: Annotated[list[int], add]"/>
+
+Resume Example
+<CodeBlock language="python" content="config = {"configurable": {"thread_id": "user-1"}}
+
+ 
+
+As the graph runs, the state may evolve like this:
+
+CheckpointStateCP1CP2CP3
+Here, CP1, CP2, and CP3 are checkpoints automatically created by the checkpointer.
+imple Example (Memory Persistence)
+<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver from langgraph.graph import StateGraph
+
+
+## What gets saved?
+
+LangGraph stores the **state after every super-step**.
+
+A **super-step** is a round of execution in which **all active nodes finish running** before the next round begins.
+
+For example, suppose the graph state is:
+
+```python
+from typing import TypedDict, Annotated
+from operator import add
+
+class State(TypedDict):
+    numbers: Annotated[list[int], add]
+```
+
+As the graph runs, the state may evolve like this:
+
+| Checkpoint | State |
+|---|---|
+| **CP1** | `[1]` |
+| **CP2** | `[1, 2]` |
+| **CP3** | `[1, 2, 3, 4, 5]` |
+
+Here, **CP1, CP2, and CP3 are checkpoints automatically created by the checkpointer** after each super-step.
+
+---
+
+## Simple Example (Memory Persistence)
+
+```python
+from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import StateGraph
+
+# Create a checkpointer
+checkpointer = MemorySaver()
+
+# Compile graph with persistence enabled
+graph = builder.compile(checkpointer=checkpointer)
+```
+
+`MemorySaver` stores checkpoints in **RAM**, so the state is available while the application is running.
+
+---
+
+## Resume Example
+
+```python
+config = {"configurable": {"thread_id": "user-1"}}
+
+# First run
+graph.invoke(
+    {"numbers": [1]},
+    config=config
+)
+
+# Resume later with the same thread_id
+graph.invoke(
+    {"numbers": [2]},
+    config=config
+)
+```
+
+### What happens?
+
+- First run saves: `[1]`
+- Second run loads the previous checkpoint and updates it to: `[1, 2]`
+
+Because the **same `thread_id` (`user-1`)** is used, LangGraph restores the previous state automatically and continues the workflow instead of starting from scratch.
+# Benefits of Persistence
+- Short Term Memory
+- Fault Tolerance
+- HITL
+- Time Travel
+
+upate this with the simple examples too in langgraph how it works
+# Benefits of Persistence in LangGraph
+
+Persistence is not just for saving state — it enables several powerful features that are used in real-world AI applications.
+
+---
+
+# 1. Short-Term Memory
+
+## What is it?
+
+The graph can **remember information from previous interactions** in the same thread.
+
+This is useful for:
+
+- chatbots,
+- assistants,
+- form-filling workflows,
+- multi-step reasoning.
+
+---
+
+## Example
+
+```python
+from typing import TypedDict
+from langgraph.checkpoint.memory import MemorySaver
+
+class State(TypedDict):
+    name: str
+
+checkpointer = MemorySaver()
+graph = builder.compile(checkpointer=checkpointer)
+
+config = {"configurable": {"thread_id": "user-1"}}
+
+# First interaction
+graph.invoke({"name": "Rahul"}, config=config)
+
+# Second interaction
+result = graph.invoke({}, config=config)
+
+print(result["name"])
+```
+
+Output:
+
+```python
+Rahul
+```
+
+### How it works
+
+- First call saves `name = "Rahul"`.
+- Second call uses the same `thread_id`.
+- LangGraph loads the previous checkpoint automatically.
+- The graph remembers the user’s name.
+
+### Real-world use
+
+A chatbot can remember:
+
+- user name,
+- preferred language,
+- recent questions,
+- temporary session data.
+
+---
+
+# 2. Fault Tolerance
+
+## What is it?
+
+If the application **crashes or stops**, the graph can **resume from the last saved checkpoint** instead of starting again.
+
+---
+
+## Example
+
+```python
+config = {"configurable": {"thread_id": "job-1"}}
+
+# Step 1 completed and saved
+graph.invoke({"step": 1}, config=config)
+
+# 💥 Application crashes here
+
+# Restart application and resume
+graph.invoke({"step": 2}, config=config)
+```
+
+### What happens?
+
+- Checkpoint after step 1 is already stored.
+- After restart, LangGraph loads the saved state.
+- Execution continues from the last checkpoint.
+
+---
+
+## Visual
+
+```text
+Start
+  │
+  ├── Step 1 ✅ (checkpoint saved)
+  │
+  ├── 💥 Crash
+  │
+Restart
+  │
+  └── Resume from Step 1 → Step 2
+```
+
+### Real-world use
+
+Useful for:
+
+- long-running data pipelines,
+- document processing,
+- API workflows,
+- background jobs.
+
+---
+
+# 3. HITL (Human-in-the-Loop)
+
+## What is it?
+
+The graph can **pause and wait for human input**, then continue execution later.
+
+This is one of the most important features enabled by persistence.
+
+---
+
+## Example
+
+```python
+from langgraph.types import interrupt
+
+def ask_human(state):
+    answer = interrupt("Approve the request?")
+    return {"approved": answer}
+```
+
+When the graph reaches `interrupt(...)`:
+
+- execution pauses,
+- state is checkpointed,
+- control returns to the application.
+
+Later, a human provides input and the graph resumes.
+
+---
+
+## Resume with human answer
+
+```python
+graph.invoke(
+    Command(resume=True),
+    config=config
+)
+```
+
+---
+
+## Visual Flow
+
+```text
+Node A
+  │
+  ▼
+Ask Human
+  │
+  ├── Pause & save checkpoint
+  │
+  └── Waiting for approval...
+          │
+          ▼
+     Human approves
+          │
+          ▼
+       Node B
+```
+
+### Real-world use
+
+- manager approval,
+- compliance review,
+- content moderation,
+- customer-support escalation.
+
+---
+
+# 4. Time Travel (Helps Debugging)
+
+## What is it?
+
+Because every checkpoint is stored, you can **go back to an earlier state and replay the workflow from that point**.
+
+This is called **time travel**.
+
+---
+
+## Example
+
+Suppose the checkpoints are:
+
+| Checkpoint | State |
+|---|---|
+| CP1 | `[1]` |
+| CP2 | `[1, 2]` |
+| CP3 | `[1, 2, 3]` |
+
+You can load **CP2** and continue from there.
+
+```python
+snapshot = graph.get_state(config)
+
+print(snapshot.values)
+```
+
+Output:
+
+```python
+{"numbers": [1, 2]}
+```
+
+Now replay from that point:
+
+```python
+graph.invoke(
+    {"numbers": [99]},
+    config=config
+)
+```
+
+New state:
+
+```python
+[1, 2, 99]
+```
+
+---
+
+## Visual
+
+```text
+CP1 → [1]
+  │
+CP2 → [1, 2]
+  │
+CP3 → [1, 2, 3]
+
+⬅️ Go back to CP2
+
+CP2 → [1, 2]
+  │
+  └── Replay with new input
+          ↓
+      [1, 2, 99]
+```
+
+### Real-world use
+
+- debugging workflows,
+- reproducing bugs,
+- testing different prompts,
+- auditing AI decisions.
+
+---
+
+# Summary Table
+
+| Benefit | What it does | Simple Example |
+|---|---|---|
+| **Short-Term Memory** | Remembers previous state | Remember user name |
+| **Fault Tolerance** | Resume after crash | Continue a job from last checkpoint |
+| **HITL** | Pause for human input | Approval workflow |
+| **Time Travel** | Go back to an old checkpoint | Replay from CP2 |
+
+---
+
+# One Simple Workflow Showing All 4
+
+```text
+User: “Process my loan request”
+        │
+        ▼
+Remember user info (Short-Term Memory)
+        │
+        ▼
+Save checkpoint
+        │
+        ▼
+Ask manager approval (HITL)
+        │
+   Pause & persist
+        │
+Manager approves
+        ▼
+Resume execution
+        │
+        ▼
+System crashes? (Fault Tolerance)
+        │
+Restart
+        ▼
+Continue from saved checkpoint
+        │
+        ▼
+Need to audit later? (Time Travel)
+        │
+Load old checkpoint and replay
+```
+
+---
+
+# One-Line Revision
+
+> **Persistence gives LangGraph memory, crash recovery, human approval pauses, and the ability to rewind and replay workflows from any saved checkpoint.**
+---
+
+## What is Streaming
+
+- In LLms, streaming means the model starts sending tokens (words) as soon as they're generated, instead of waiting for the entire response to be ready before returning it. 
+
+### Why Streaming
+
+1. Faster response time - low drop-off rates
+2. Mimics human like conversation (Builds trust, feels alive and keeps the user engaged)
+3. Important for Multi-modal Us
+4. Better UX for long output such as code
+5. You can cancel midway saving tokens
+6. You can interleave Ui updates.
+
+---
+# LangSmith Notes (Observability for LLM Applications)
+
+## Why I need this topic
+
+In real AI applications, the model may:
+
+- become **slow (latency issue)**
+- become **expensive (token/cost issue)**
+- start giving **hallucinated answers**
+- fail with **errors**
+- behave differently after prompt/model changes
+
+To debug these problems, we need **observability**.
+
+---
+
+# LangSmith Notes – Observability & Debugging for AI Applications
+
+---
+
+# 1. Why Observability Is Needed in AI Systems
+
+In traditional backend systems, we monitor:
+
+- API latency
+- Error rates
+- CPU / memory
+- Database performance
+
+But AI applications introduce new problems:
+
+- LLM responses become slow
+- Token usage increases
+- Costs suddenly rise
+- RAG systems hallucinate
+- Agents take unexpected actions
+- Prompt changes break workflows
+
+Without observability, debugging becomes **guesswork**.
+
+---
+
+# 2. Real Examples
+
+---
+
+## Example 1: Resume & Cover Letter Generator
+
+### Workflow
+
+```text
+User uploads resume
+      |
+      v
+Provide Job Description (JD)
+      |
+      v
+LLM analyzes JD
+      |
+      v
+LLM rewrites resume
+      |
+      v
+LLM generates cover letter
+      |
+      v
+Return final documents
+```
+
+### Problem: High Latency
+
+Earlier response time:
+
+```text
+8 seconds
+```
+
+Now:
+
+```text
+25+ seconds
+```
+
+### What needs debugging?
+
+- Which LLM call is slow?
+- Is the JD too large?
+- Is prompt chaining causing delay?
+- Is there a retry loop?
+
+### Without observability
+
+```text
+Only know: "API is slow"
+```
+
+### With observability
+
+```text
+JD analysis call      -> 15s
+Resume rewrite call   -> 4s
+Cover letter call     -> 3s
+Total                 -> 22s
+```
+
+Now we know the **JD analysis step is the bottleneck**.
+
+---
+
+## Example 2: Research Report Agent
+
+### Workflow
+
+```text
+User provides research topic
+      |
+      v
+Agent searches online
+      |
+      v
+Collects articles
+      |
+      v
+Summarizes findings
+      |
+      v
+Generates final report
+```
+
+### Problem: Cost Increased
+
+Earlier:
+
+```text
+1 report = ₹1
+```
+
+Now:
+
+```text
+1 report = ₹2
+```
+
+### Possible reasons
+
+- More web search results fetched
+- Larger context passed to LLM
+- Additional hidden LLM calls
+- Agent stuck in a reasoning loop
+- Model changed from cheaper to expensive one
+
+### What observability reveals
+
+```text
+Search tool called        3 times
+Summarization LLM         1 time
+Report generation LLM     1 time
+Unexpected retry loop     2 extra calls
+Total tokens doubled
+```
+
+Root cause:
+
+```text
+Retry loop triggered because one tool returned malformed JSON.
+```
+
+---
+
+## Example 3: RAG Chatbot for Company Policies
+
+### Use case
+
+Chatbot answers questions about:
+
+- Leave policy
+- Insurance
+- Promotions
+- Benching
+- Project allocation
+- Working hours
+- Reimbursement rules
+
+### RAG Architecture
+
+```text
+Company documents
+      |
+      v
+Chunking
+      |
+      v
+Embeddings
+      |
+      v
+Vector Database
+      |
+      v
+Retriever
+      |
+      v
+LLM
+      |
+      v
+Final answer
+```
+
+### Problem: Hallucinations
+
+User asks:
+
+```text
+How many casual leaves do I get?
+```
+
+Actual policy:
+
+```text
+12 casual leaves
+```
+
+LLM answers:
+
+```text
+15 casual leaves
+```
+
+### Why did this happen?
+
+Possible reasons:
+
+- Wrong chunks retrieved
+- No relevant chunk found
+- LLM answered from general knowledge
+- Chunk size too large
+- Embedding mismatch
+
+### With observability
+
+We can inspect:
+
+```text
+Retrieved chunks:
+- Promotion policy
+- Insurance policy
+- Travel reimbursement policy
+
+No leave-policy chunk retrieved.
+```
+
+Root cause becomes clear.
+
+---
+
+# 3. What Is Observability?
+
+## Simple Definition
+
+> Observability is the ability to understand what is happening inside a system by examining its inputs, outputs, intermediate steps, performance, cost, and errors.
+
+---
+
+## In AI Systems
+
+Observability helps us answer:
+
+### What did the user ask?
+
+```text
+Input prompt
+```
+
+### What did the model return?
+
+```text
+Final response
+```
+
+### What happened in between?
+
+```text
+Prompt templates
+Retriever results
+Tool calls
+Agent reasoning steps
+```
+
+### How long did it take?
+
+```text
+Latency per step
+```
+
+### How much did it cost?
+
+```text
+Token usage + API cost
+```
+
+### Did something fail?
+
+```text
+Errors / exceptions
+```
+
+---
+
+# 4. Enter LangSmith
+
+## Definition
+
+> LangSmith is a unified observability and evaluation platform where teams can debug, test, and monitor AI application performance.
+
+### Official website
+
+```text
+https://smith.langchain.com
+```
+
+---
+
+# 5. What LangSmith Traces
+
+A **trace** is a complete record of one AI application execution.
+
+---
+
+## 1. Input and Output
+
+### Input
+
+```text
+"Generate a resume for a Python developer role"
+```
+
+### Output
+
+```text
+Final resume content
+```
+
+This helps reproduce issues.
+
+---
+
+## 2. Intermediate Steps
+
+LangSmith records every internal operation.
+
+### Example
+
+```text
+Step 1: Analyze JD
+Step 2: Extract required skills
+Step 3: Rewrite resume
+Step 4: Generate cover letter
+```
+
+For RAG:
+
+```text
+Step 1: Embed query
+Step 2: Retrieve chunks
+Step 3: Build context
+Step 4: Generate answer
+```
+
+This is the **most valuable feature for debugging**.
+
+---
+
+## 3. Latency
+
+Shows time taken by each step.
+
+### Example
+
+```text
+Retriever              120ms
+Prompt formatting       10ms
+LLM call              4200ms
+Output parser           15ms
+Total                 4345ms
+```
+
+Use it to identify bottlenecks.
+
+---
+
+## 4. Token Usage
+
+Tracks:
+
+- Prompt tokens
+- Completion tokens
+- Total tokens
+
+### Example
+
+```text
+Prompt tokens      1200
+Completion tokens   350
+Total              1550
+```
+
+Useful for optimization.
+
+---
+
+## 5. Cost
+
+### Example
+
+```text
+GPT-4o call -> $0.012
+Embedding   -> $0.001
+Total       -> $0.013
+```
+
+You can compare executions and detect sudden cost spikes.
+
+---
+
+## 6. Errors
+
+Captures exceptions automatically.
+
+### Example
+
+```text
+OutputParserException:
+Expected JSON but received plain text
+```
+
+No need to search logs manually.
+
+---
+
+## 7. Tags
+
+Used to categorize traces.
+
+### Examples
+
+```python
+tags=["resume", "production", "gpt4o"]
+```
+
+Filter traces by:
+
+- feature
+- environment
+- model
+- customer
+- experiment
+
+---
+
+## 8. Metadata
+
+Attach business information.
+
+### Example
+
+```python
+metadata={
+    "user_id": "u123",
+    "plan": "premium",
+    "feature": "research_agent"
+}
+```
+
+Helps correlate cost and performance with users or plans.
+
+---
+
+## 9. Feedback
+
+Store human evaluation.
+
+### Example
+
+```text
+Thumbs up/down
+Rating (1-5)
+Reviewer comments
+```
+
+Used for continuous improvement and evaluation datasets.
+
+---
+
+# 6. Visual Trace Example
+
+```text
+User Question
+   |
+   v
+Retriever -------------------- 80ms
+   |
+   v
+Retrieved 4 chunks
+   |
+   v
+Prompt Builder ---------------- 5ms
+   |
+   v
+LLM Call ------------------- 3500ms
+   |
+   v
+Output Parser --------------- 10ms
+   |
+   v
+Final Response
+
+Total latency: 3595ms
+Tokens: 1420
+Cost: $0.009
+```
+
+This gives a **complete execution timeline**.
+
+---
+
+# 7. How LangSmith Solves the Earlier Problems
+
+---
+
+## Resume Generator (Latency)
+
+### Before
+
+```text
+Total API time = 25s
+No idea which step is slow
+```
+
+### After
+
+```text
+JD analysis = 18s
+Resume rewrite = 4s
+Cover letter = 2s
+```
+
+### Fix
+
+- Reduce JD size
+- Summarize JD first
+- Use a faster model for extraction
+
+---
+
+## Research Agent (Cost)
+
+### Before
+
+```text
+Cost doubled unexpectedly
+```
+
+### After
+
+```text
+Tool retry loop detected
+Extra 3 LLM calls observed
+Token usage increased from 4k -> 9k
+```
+
+### Fix
+
+- Add retry limit
+- Validate tool outputs
+- Cache search results
+
+---
+
+## RAG Hallucination
+
+### Before
+
+```text
+Wrong leave-policy answer
+```
+
+### After
+
+```text
+No relevant leave-policy chunk retrieved
+LLM answered from prior knowledge
+```
+
+### Fix
+
+- Improve chunking
+- Increase top-k retrieval
+- Add similarity threshold
+- Add "If context is missing, say I don’t know"
+
+---
+
+# 8. Key Interview Question
+
+## Q: What is the difference between logging and observability?
+
+### Logging
+
+```text
+Print statements
+Error logs
+Basic request logs
+```
+
+### Observability
+
+```text
+Inputs/outputs
+Intermediate steps
+Latency
+Token usage
+Cost
+Errors
+Metadata
+Feedback
+```
+
+### Interview Answer
+
+> Logging tells us that something happened, while observability helps us understand **why it happened and how the entire AI workflow behaved**.
+
+---
+
+# 9. How to Enable LangSmith (Basic)
+
+```python
+from langsmith import traceable
+
+@traceable
+def generate_resume(jd, resume):
+    ...
+```
+
+Set environment variables:
+
+```bash
+export LANGCHAIN_TRACING_V2=true
+export LANGCHAIN_API_KEY=your_key
+export LANGCHAIN_PROJECT=resume-generator
+```
+
+After this, traces automatically appear in the LangSmith dashboard.
+
+---
+
+# 10. Best Practices
+
+## Use tags
+
+```python
+tags=["production", "rag", "policy-bot"]
+```
+
+---
+
+## Add metadata
+
+```python
+metadata={"user_id": user_id}
+```
+
+---
+
+## Trace every external dependency
+
+- LLM calls
+- Vector DB retrieval
+- Web search
+- Database queries
+- Tool executions
+
+---
+
+## Create evaluation datasets
+
+Store good and bad examples and run automated evaluations after prompt changes.
+
+---
+
+# 11. One-Line Revision Points
+
+## Observability
+
+```text
+Understand the internal behavior of an AI system.
+```
+
+## Trace
+
+```text
+A complete record of one execution.
+```
+
+## Latency
+
+```text
+Time taken by each step.
+```
+
+## Token Usage
+
+```text
+Number of prompt and completion tokens consumed.
+```
+
+## Cost
+
+```text
+API cost for a single execution.
+```
+
+## Hallucination
+
+```text
+Model generates information not grounded in retrieved context.
+```
+
+## LangSmith
+
+```text
+A platform to debug, monitor, evaluate, and improve LLM applications.
+```
+
+---
+# 2. Monitoring & Alerting
+
+Once an AI application goes into production, we need continuous monitoring.
+
+LangSmith provides dashboards for monitoring production traffic.
+
+---
+
+## What can be monitored?
+
+### Latency
+
+Example
+
+```text
+Average Response Time
+
+Yesterday
+2.4 seconds
+
+Today
+7.9 seconds
+```
+
+Immediately indicates performance degradation.
+
+---
+
+### Error Rate
+
+Example
+
+```text
+Yesterday
+1%
+
+Today
+12%
+```
+
+Shows something is failing after deployment.
+
+---
+
+### Token Usage
+
+Monitor
+
+- Prompt tokens
+- Completion tokens
+- Total tokens
+
+Useful for controlling LLM costs.
+
+---
+
+### Cost Monitoring
+
+Example
+
+```text
+Yesterday
+
+₹1 per report
+
+Today
+
+₹2.5 per report
+```
+
+LangSmith helps identify:
+
+- Which prompt became expensive
+- Which agent is consuming more tokens
+- Whether retries are increasing cost
+
+---
+
+## Alerting
+
+LangSmith can notify teams when predefined thresholds are crossed.
+
+Examples:
+
+- Latency > 10 seconds
+- Cost per request increases by 30%
+- Error rate exceeds 5%
+- Hallucination score increases
+- Tool failure rate increases
+
+This helps teams react before users report issues.
+
+---
+
+# 3. Evaluation (Very Important)
+
+Evaluation answers the question:
+
+> Is my AI application actually producing good responses?
+
+Instead of manually checking every output, LangSmith automates evaluations.
+
+---
+
+## Why evaluation?
+
+Imagine changing:
+
+- Prompt
+- Model
+- Temperature
+- Retrieval strategy
+
+How do you know whether responses became better?
+
+Evaluation measures quality automatically.
+
+---
+
+## Types of Evaluation
+
+### Correctness
+
+Did the model answer correctly?
+
+---
+
+### Relevance
+
+Is the answer related to the user's question?
+
+---
+
+### Faithfulness
+
+Is the answer grounded in retrieved documents?
+
+Especially important in RAG systems.
+
+---
+
+### Helpfulness
+
+Would a user find this response useful?
+
+---
+
+### Toxicity / Safety
+
+Does the response contain unsafe or offensive content?
+
+---
+
+## Example
+
+Question
+
+```text
+How many casual leaves do employees receive?
+```
+
+Ground Truth
+
+```text
+12 Casual Leaves
+```
+
+LLM Output
+
+```text
+12 Casual Leaves
+```
+
+Evaluation
+
+```text
+Correctness
+100%
+
+Faithfulness
+100%
+
+Relevance
+100%
+```
+
+---
+
+## Benefits
+
+- Compare different prompts
+- Compare different models
+- Prevent regressions
+- Improve quality over time
+
+---
+
+# 4. Prompt Experimentation
+
+One of LangSmith's strongest features.
+
+Instead of guessing which prompt is better, we compare them scientifically.
+
+---
+
+## Example
+
+Prompt A
+
+```text
+Summarize the document.
+```
+
+Prompt B
+
+```text
+Summarize the document in bullet points with action items.
+```
+
+Run both prompts on the same dataset.
+
+Compare:
+
+- Accuracy
+- Cost
+- Latency
+- User ratings
+
+Choose the better prompt.
+
+---
+
+## Compare Models
+
+Example
+
+```text
+GPT-4o
+
+vs
+
+Claude
+
+vs
+
+Gemini
+```
+
+Compare:
+
+- Speed
+- Cost
+- Accuracy
+- Hallucination rate
+
+---
+
+## Benefits
+
+No guessing.
+
+Use data to decide which prompt performs best.
+
+---
+
+# 5. Dataset Creation & Annotation
+
+Evaluation requires datasets.
+
+LangSmith helps create and manage datasets.
+
+---
+
+## Dataset Example
+
+| Input | Expected Output |
+|--------|-----------------|
+| Leave Policy | 12 casual leaves |
+| Insurance | Medical insurance available |
+| Promotion | Promotion after annual review |
+
+---
+
+These datasets can be reused for testing every time prompts change.
+
+---
+
+## Annotation
+
+Humans can label responses.
+
+Example
+
+```text
+Correct
+
+Incorrect
+
+Partially Correct
+```
+
+Or
+
+```text
+Rating
+
+1
+
+2
+
+3
+
+4
+
+5
+```
+
+Annotations improve evaluation quality.
+
+---
+
+# 6. User Feedback Collection
+
+Real users provide the best evaluation.
+
+LangSmith allows collecting feedback directly.
+
+Examples
+
+👍 Helpful
+
+👎 Not Helpful
+
+⭐ Rating
+
+Comment
+
+---
+
+Example
+
+```text
+Question
+
+How many leaves do I get?
+
+Response
+
+12 Casual Leaves
+
+User Feedback
+
+⭐⭐⭐⭐⭐
+```
+
+Another
+
+```text
+Question
+
+Insurance Policy
+
+Response
+
+Incorrect Answer
+
+User Feedback
+
+👎
+```
+
+This feedback can later become training or evaluation data.
+
+---
+
+# 7. Collaboration
+
+LangSmith is designed for teams.
+
+Different people can work together.
+
+Examples
+
+- AI Engineers
+- Backend Developers
+- ML Engineers
+- Product Managers
+- QA Engineers
+
+---
+
+Everyone can view:
+
+- Traces
+- Evaluations
+- Prompt versions
+- User feedback
+- Performance dashboards
+
+Instead of sending screenshots, the entire execution trace can be shared.
+
+---
+
+# Real Project Example
+
+## Resume Generator
+
+Problem
+
+```text
+Resume generation suddenly takes 30 seconds.
+```
+
+LangSmith shows
+
+```text
+JD analysis
+
+22 seconds
+
+Resume generation
+
+5 seconds
+
+Cover letter
+
+3 seconds
+```
+
+Root Cause
+
+```text
+Large Job Description.
+```
+
+---
+
+## Research Agent
+
+Problem
+
+```text
+Cost increased from ₹1 to ₹2.5.
+```
+
+LangSmith shows
+
+```text
+Extra retry loop.
+
+Additional LLM calls.
+
+Token usage doubled.
+```
+
+---
+
+## RAG Chatbot
+
+Problem
+
+```text
+Wrong leave policy answer.
+```
+
+LangSmith trace shows
+
+```text
+Retriever fetched insurance documents.
+
+Leave policy document never retrieved.
+```
+
+Root Cause
+
+```text
+Retriever failure.
+
+Not an LLM issue.
+```
+---
+
+## Difference between Logging and LangSmith
+
+### Logging
+
+- API Logs
+- Error Logs
+- Print Statements
+
+Limited visibility.
+
+---
+
+### LangSmith
+
+- Complete execution trace
+- Prompt inspection
+- Tool execution
+- Agent reasoning
+- Cost analysis
+- Token tracking
+- Evaluation
+- User feedback
+
+Provides complete observability.
+
+--- 
+# LangGraph ToolNode, tools_condition & MCP Notes
+
+---
+
+# 1. What is a Tool in an LLM?
+
+An LLM by itself **cannot**:
+
+- Access databases
+- Search the internet
+- Read local files
+- Call APIs
+- Send emails
+- Query GitHub
+- Execute Python code
+
+Instead, we expose these capabilities as **Tools**.
+
+A tool is simply a Python function (or API) that performs a task on behalf of the LLM.
+
+---
+
+## Example Tool
+
+```python
+from langchain.tools import tool
+
+@tool
+def get_weather(city: str):
+    """Returns weather for a city."""
+    return f"The weather in {city} is 28°C."
+```
+
+Now the LLM can call:
+
+```text
+get_weather("Mumbai")
+```
+
+instead of trying to guess the answer.
+
+---
+
+# 2. What is ToolNode?
+
+## Definition
+
+> A **ToolNode** is a prebuilt LangGraph node that automatically executes tools requested by the LLM.
+
+Normally in LangGraph, you write every node yourself.
+
+Example:
+
+```python
+def my_node(state):
+    ...
+    return state
+```
+
+A ToolNode saves you from writing all the tool execution logic.
+
+It already knows how to:
+
+- Detect tool calls
+- Find the correct tool
+- Execute it
+- Capture the result
+- Return the result back to the graph
+
+---
+
+# Without ToolNode
+
+Suppose the LLM wants weather information.
+
+You would need to manually:
+
+```text
+LLM says:
+"I need get_weather()"
+
+        |
+
+Detect tool call
+
+        |
+
+Find correct Python function
+
+        |
+
+Execute function
+
+        |
+
+Capture result
+
+        |
+
+Append result into state
+
+        |
+
+Return to LLM
+```
+
+You write all this yourself.
+
+---
+
+# With ToolNode
+
+You simply provide your tools.
+
+```python
+ToolNode(tools)
+```
+
+Everything else happens automatically.
+
+---
+
+# Example
+
+```python
+from langgraph.prebuilt import ToolNode
+
+tool_node = ToolNode(
+    tools=[get_weather, search_docs]
+)
+```
+
+That's it.
+
+Whenever the LLM requests one of those tools, ToolNode executes it.
+
+---
+
+# Internal Flow
+
+```text
+User
+
+   |
+
+   v
+
+LLM
+
+   |
+
+   v
+
+"I want get_weather()"
+
+   |
+
+   v
+
+ToolNode
+
+   |
+
+   v
+
+Runs Python Function
+
+   |
+
+   v
+
+Returns Result
+
+   |
+
+   v
+
+LLM
+
+   |
+
+   v
+
+Final Answer
+```
+
+---
+
+# 3. What is tools_condition?
+
+ToolNode executes tools.
+
+But how does the graph know **whether it should go to ToolNode or not?**
+
+That decision is made by **tools_condition**.
+
+---
+
+## Definition
+
+> `tools_condition` is a prebuilt conditional edge in LangGraph that checks whether the LLM requested a tool.
+
+It answers the question:
+
+```text
+Should I execute a tool?
+
+OR
+
+Should I continue the conversation?
+```
+
+---
+
+# Visual Flow
+
+```text
+User
+
+   |
+
+   v
+
+LLM
+
+   |
+
+   v
+
+tools_condition
+
+   |
+
+   +------------------------+
+
+   |                        |
+
+Tool Needed?             No Tool Needed
+
+   |                        |
+
+   v                        v
+
+ToolNode                 END
+
+   |
+
+   v
+
+Back to LLM
+
+   |
+
+   v
+
+Final Response
+```
+
+---
+
+
+# Graph Code
+
+```python
+graph.add_conditional_edges(
+    "chatbot",
+    tools_condition
+)
+```
+
+LangGraph automatically decides where to go.
+
+---
+
+# Summary
+
+ToolNode
+
+```text
+Executes tools.
+```
+
+tools_condition
+
+```text
+Decides whether a tool should be executed.
+```
+
+---
+
+# Interview Question
+
+## Difference between ToolNode and tools_condition?
+
+### ToolNode
+
+- Executes tool
+- Runs Python functions
+- Returns tool output
+
+### tools_condition
+
+- Makes routing decision
+- Checks if LLM requested a tool
+- Sends graph to ToolNode if required
+
+---
+
+# 4. MCP (Model Context Protocol)
+
+## What is MCP?
+
+> MCP (Model Context Protocol) is an open standard that allows AI models to communicate with external applications through standardized servers instead of custom tool implementations.
+
+Think of MCP as **USB-C for AI applications**.
+
+Instead of writing custom integrations for every application, AI connects using a common protocol.
+
+---
+
+# Why was MCP introduced?
+
+Suppose your chatbot needs access to:
+
+- GitHub
+- Slack
+- Google Drive
+- PostgreSQL
+- Jira
+- Notion
+
+Without MCP, you write a custom tool for every service.
+
+---
+
+# Without MCP
+
+Example
+
+You want the LLM to list GitHub Pull Requests.
+
+You write:
+
+```python
+def get_pull_requests(repo):
+    ...
+```
+
+Inside this function you manually:
+
+- Authenticate
+- Handle tokens
+- Call GitHub API
+- Parse JSON
+- Handle pagination
+- Handle retries
+- Update code when GitHub changes APIs
+
+Every project repeats this work.
+
+---
+
+# Problems
+
+- Duplicate code
+- API version changes
+- Authentication management
+- Difficult maintenance
+- Tight coupling
+
+---
+
+# With MCP
+
+Instead of writing API logic yourself:
+
+```text
+LLM
+
+↓
+
+GitHub MCP Server
+
+↓
+
+GitHub API
+```
+
+The MCP server handles everything.
+
+Your application only communicates using the MCP protocol.
+
+---
+
+# Why is this Better?
+
+If GitHub changes:
+
+```text
+GitHub API v2
+
+↓
+
+Only GitHub MCP Server updates
+
+↓
+
+Your application continues working
+```
+
+No changes needed in your AI application.
+
+---
+
+# Benefits of MCP
+
+- Standardized integrations
+- Less custom code
+- Easier maintenance
+- Reusable connectors
+- Better security
+- Version compatibility
+- Plug-and-play architecture
+
+---
+
+# Real MCP Servers
+
+There are MCP servers for:
+
+- GitHub
+- Slack
+- Google Drive
+- Gmail
+- PostgreSQL
+- SQLite
+- Jira
+- Notion
+- Filesystem
+- Web Browser
+
+Instead of writing tools for each one, simply connect to the MCP server.
+
+---
+
+# Tool vs MCP
+
+| Tool | MCP |
+|-------|-----|
+| Python function | External standardized server |
+| Project-specific | Reusable across projects |
+| You maintain it | MCP server maintains integration |
+| Manual API integration | Standard protocol |
+| Tight coupling | Loose coupling |
+| Breaks when APIs change | MCP server absorbs API changes |
+
+---
+
+# Example Comparison
+
+## Tool
+
+```python
+@tool
+def github_prs(repo):
+    ...
+```
+
+Every project implements similar logic.
+
+---
+
+## MCP
+
+```text
+LLM
+
+↓
+
+GitHub MCP Server
+
+↓
+
+GitHub API
+```
+
+No GitHub-specific code inside your application.
+
+---
+
+# When Should You Use Tools?
+
+- Simple calculations
+- Local Python functions
+- Internal business logic
+- Small utilities
+- Quick prototypes
+
+Examples
+
+- Calculator
+- Date formatting
+- Currency conversion
+- Internal database lookup
+
+---
+
+# When Should You Use MCP?
+
+- GitHub
+- Slack
+- Gmail
+- Notion
+- Google Drive
+- Jira
+- Enterprise systems
+- External services used by multiple projects
+
+---
+
+# Interview Questions
+
+## What is ToolNode?
+
+```text
+A prebuilt LangGraph node that automatically executes tools requested by the LLM.
+```
+
+---
+
+## What is tools_condition?
+
+```text
+A prebuilt conditional edge that decides whether the graph should execute a tool or continue the conversation.
+```
+
+---
+
+## What is MCP?
+
+```text
+Model Context Protocol (MCP) is an open standard that enables AI models to communicate with external applications through standardized servers instead of custom tool implementations.
+```
+
+---
+
+## Why is MCP better than writing tools?
+
+```text
+MCP reduces maintenance by standardizing integrations. When an external API changes (like GitHub), only the MCP server needs updating instead of every AI application.
+```
+
+---
+
+## Transport Types
+
+### 1. stdio
+
+Used when the MCP Server is running locally.
+
+Example:
+
+```python
+{
+    "transport": "stdio",
+    "command": sys.executable,
+    "args": ["calculator_server.py"]
+}
+```
+
+Flow
+
+```
+LangGraph
+    │
+    ▼
+Local Python Process
+    │
+    ▼
+Tool
+```
+
+---
+
+### 2. http
+
+Used when the MCP Server is hosted remotely.
+
+Example
+
+```python
+{
+    "transport": "http",
+    "url": "https://search.parallel.ai/mcp"
+}
+```
+
+Flow
+
+```
+LangGraph
+    │
+    ▼
+HTTP Request
+    │
+    ▼
+Remote MCP Server
+    │
+    ▼
+Remote Tool
+```
+
+---
+
+# Parallel Search MCP
+
+Website
+
+https://search.parallel.ai/mcp
+
+Authentication
+
+✅ No Authentication Required
+
+Transport
+
+HTTP
+
+---
+
+# Free MCP Servers (No Authentication Required)
+
+These MCP servers are great for learning LangGraph + MCP because they require **no authentication** and let you focus on understanding the MCP protocol instead of OAuth or API keys.
+
+| MCP Server | Auth | Transport | Best For | Difficulty |
+|------------|------|-----------|----------|------------|
+| Parallel Search | ✅ No Auth | HTTP | AI Search Agent | ⭐⭐⭐⭐⭐ |
+| MCPub | ✅ No Auth | HTTP | Discovering MCP Servers | ⭐⭐⭐⭐⭐ |
+| Official Fetch | ✅ No Auth | stdio / HTTP (self-host) | Reading Websites | ⭐⭐⭐⭐ |
+| Everything Server | ✅ No Auth | stdio / HTTP (self-host) | Learning every MCP feature | ⭐⭐⭐⭐⭐ |
+| CatAPI MCP | ✅ No Auth | HTTP | Simple API integration | ⭐⭐⭐ |
+
+---
+
+# 1. Parallel Search MCP ⭐⭐⭐⭐⭐
+
+## What is it?
+
+A hosted Remote MCP Server that provides real-time internet search capabilities.
+
+It exposes web search as MCP tools so your LLM can search the internet whenever required.
+
+No need to write your own search API.
+
+---
+
+## Transport
+
+HTTP
+
+---
+
+## Authentication
+
+✅ No Authentication Required (Basic Usage)
+
+---
+
+## Python Configuration
+
+```python
+from typing import cast
+import sys
+from langchain_mcp_adapters.client import MultiServerMCPClient
+
+client = MultiServerMCPClient(
+    cast(dict, {
+        "parallel_search": {
+            "transport": "http",
+            "url": "https://search.parallel.ai/mcp"
+        }
+    })
+)
+```
+
+---
+
+## Available Tools
+
+```
+web_search
+
+web_fetch
+```
+
+---
+
+## Example Questions
+
+```
+What is LangGraph?
+```
+
+```
+Latest FastAPI release
+```
+
+```
+Latest AI News
+```
+
+```
+Research RAG Architecture
+```
+
+```
+Compare FastAPI vs Flask
+```
+
+```
+Summarize latest OpenAI announcements
+```
+
+---
+
+## Agent Flow
+
+```
+User
+
+↓
+
+LLM
+
+↓
+
+web_search()
+
+↓
+
+Parallel MCP
+
+↓
+
+Search Results
+
+↓
+
+LLM
+
+↓
+
+Answer
+```
+
+---
+
+# 2. MCPub ⭐⭐⭐⭐⭐
+
+## What is it?
+
+Think of MCPub as a **Google Search for MCP Servers**.
+
+It lets your AI discover publicly available MCP servers.
+
+---
+
+## Transport
+
+HTTP
+
+---
+
+## Authentication
+
+✅ No Authentication Required
+
+---
+
+## Python Configuration
+
+```python
+client = MultiServerMCPClient({
+    "mcpub": {
+        "transport": "http",
+        "url": "https://mcpub.dev/mcp"
+    }
+})
+```
+
+---
+
+## Available Tools
+
+```
+search()
+
+search_live()
+
+list_all()
+
+list_all_live()
+
+get()
+
+submit()
+```
+
+---
+
+## Example Questions
+
+```
+Find GitHub MCP Servers
+```
+
+```
+Find Weather MCP Servers
+```
+
+```
+Find Database MCP Servers
+```
+
+```
+List all live MCP Servers
+```
+
+---
+
+## Agent Flow
+
+```
+User
+
+↓
+
+LLM
+
+↓
+
+search_live()
+
+↓
+
+MCPub
+
+↓
+
+Matching MCP Servers
+
+↓
+
+LLM
+```
+
+---
+
+# 3. Official Fetch MCP ⭐⭐⭐⭐
+
+## What is it?
+
+Official MCP Server that fetches webpage content and converts HTML into Markdown.
+
+Useful for:
+
+- Documentation
+- Blogs
+- RAG
+- Research
+
+---
+
+## Authentication
+
+✅ No Authentication Required
+
+---
+
+## Installation
+
+```bash
+pip install mcp-server-fetch
+```
+
+---
+
+## Python Configuration
+
+```python
+client = MultiServerMCPClient({
+    "fetch": {
+        "transport": "stdio",
+        "command": sys.executable,
+        "args": [
+            "-m",
+            "mcp_server_fetch"
+        ]
+    }
+})
+```
+
+---
+
+## Available Tool
+
+```
+fetch()
+```
+
+---
+
+## Example Questions
+
+```
+Read FastAPI Documentation
+```
+
+```
+Summarize this webpage
+
+https://fastapi.tiangolo.com/
+```
+
+```
+Extract key points from this blog
+```
+
+---
+
+## Agent Flow
+
+```
+User
+
+↓
+
+LLM
+
+↓
+
+fetch(url)
+
+↓
+
+Website
+
+↓
+
+Markdown
+
+↓
+
+LLM
+```
+
+---
+
+# 4. Everything Server ⭐⭐⭐⭐⭐
+
+## What is it?
+
+The Official Reference MCP Server.
+
+It demonstrates every major feature supported by MCP.
+
+This server is designed specifically for developers learning MCP.
+
+---
+
+## Authentication
+
+✅ No Authentication Required
+
+---
+
+## Installation
+
+```bash
+npx -y @modelcontextprotocol/server-everything
+```
+
+---
+
+## Python Configuration
+
+```python
+client = MultiServerMCPClient({
+    "everything": {
+        "transport": "stdio",
+        "command": "npx",
+        "args": [
+            "-y",
+            "@modelcontextprotocol/server-everything"
+        ]
+    }
+})
+```
+
+Windows
+
+```python
+client = MultiServerMCPClient({
+    "everything": {
+        "transport": "stdio",
+        "command": "cmd",
+        "args": [
+            "/c",
+            "npx",
+            "-y",
+            "@modelcontextprotocol/server-everything"
+        ]
+    }
+})
+```
+
+---
+
+## What can you learn?
+
+✅ Tools
+
+✅ Resources
+
+✅ Prompts
+
+✅ Sampling
+
+✅ MCP Protocol
+
+---
+
+## Best Use Case
+
+Learning how MCP works internally.
+
+---
+
+# 5. CatAPI MCP ⭐⭐⭐
+
+## What is it?
+
+A simple MCP Server wrapping the public Cat API.
+
+Good for learning HTTP-based MCP servers without authentication.
+
+---
+
+## Authentication
+
+✅ No Authentication Required
+
+---
+
+## Example Questions
+
+```
+Show me 5 cat images.
+```
+
+```
+Random cat fact.
+```
+
+```
+Random cat picture.
+```
+
+---
+
+# Using Multiple MCP Servers
+
+LangGraph can connect to multiple MCP Servers simultaneously.
+
+Example
+
+```python
+from typing import cast
+import sys
+
+client = MultiServerMCPClient(
+    cast(dict, {
+
+        "calculator": {
+            "transport": "stdio",
+            "command": sys.executable,
+            "args": ["09_langgraph_mcp_server.py"]
+        },
+
+        "parallel_search": {
+            "transport": "http",
+            "url": "https://search.parallel.ai/mcp"
+        },
+
+        "mcpub": {
+            "transport": "http",
+            "url": "https://mcpub.dev/mcp"
+        }
+    })
+)
+
+tools = await client.get_tools()
+```
+
+---
+
+# Example Multi-MCP Flow
+
+Prompt
+
+```
+Find the latest FastAPI release.
+
+Calculate the cost of 35 servers if each costs $42.
+
+Then summarize everything.
+```
+
+Execution
+
+```
+Human
+
+↓
+
+LLM
+
+↓
+
+web_search()
+
+↓
+
+Parallel Search MCP
+
+↓
+
+Search Results
+
+↓
+
+multiply()
+
+↓
+
+Calculator MCP
+
+↓
+
+Result
+
+↓
+
+LLM
+
+↓
+
+Final Response
+```
+
+---
+
+# Interview Notes
+
+✅ MCP Servers can be Local or Remote.
+
+✅ Local MCP uses stdio.
+
+✅ Remote MCP typically uses HTTP.
+
+✅ One LangGraph application can connect to multiple MCP Servers.
+
+✅ The LLM decides which tool should be called.
+
+✅ ToolNode executes the selected tool.
+
+✅ MCP Server executes the tool.
+
+✅ Tool output is returned to the LLM.
+
+✅ The LLM generates the final answer using the tool result.
+
+---
+
+-- RAG
+
+- Why
+1. Outdated Knowledge (as the llm have the training cut off date)
+2. Privacy
+3. Hallucination
+
+- What
+
+- How rag works
+
+- rag architecture
+
+![rag_explanation](images_md/rag_explanation.png)

@@ -1,0 +1,25 @@
+langgraph
+langchain
+langchain_openai
+dotenv
+langchain-openrouter
+streamlit
+fastapi
+uvicorn[standard]
+langgraph-checkpoint-sqlite
+langchain_community
+fastmcp
+langchain_mcp_adapters
+pypdf
+faiss-cpu
+langchain-huggingface 
+sentence-transformers
+# pip install fastmcp
+# pip install langchain-community
+# pip install "fastapi[standard]"
+# pip install -U langchain langgraph langchain-openrouter
+# pip install -U ddgs
+# pip install langchain-huggingface sentence-transformers
+# pip install torchvision
+# pip install -r requirements.txt
+

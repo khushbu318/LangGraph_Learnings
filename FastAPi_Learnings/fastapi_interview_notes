@@ -1,0 +1,1088 @@
+# FastAPI Interview Notes (2 Years Experience)
+
+**Target:** Safran Digit  
+**My positioning:** I have around **2 years of experience with FastAPI** building REST APIs, authentication systems, background jobs, database integrations, and async services.
+
+---
+
+# 1. 30-Second Introduction
+
+```text
+I have been working with FastAPI for around 2 years, mainly building REST APIs and backend services. My experience includes request validation with Pydantic, JWT authentication, async endpoints, SQLAlchemy integration, background tasks, middleware, and deployment using Docker. I have also worked on API integrations, logging, error handling, and performance optimization for production services.
+```
+
+---
+
+# 2. Hot Interview Questions (Must Prepare)
+
+| Priority | Topic |
+|---|---|
+| Must | FastAPI vs Flask |
+| Must | Pydantic validation |
+| Must | Async vs sync |
+| Must | Dependency Injection |
+| Must | SQLAlchemy connection/session |
+| Must | JWT authentication |
+| Must | Middleware |
+| Must | Error handling |
+| Must | Background tasks |
+| Must | WebSockets |
+| Must | Alembic migrations |
+| Must | Connection pooling |
+| Must | Testing with pytest |
+| Advanced | Async SQLAlchemy |
+| Advanced | Caching (Redis) |
+| Advanced | Celery / distributed tasks |
+
+---
+
+# 3. FastAPI vs Flask (HOT)
+
+| Feature | Flask | FastAPI |
+|---|---|---|
+| Type hints | Optional | Native |
+| Validation | Manual | Automatic with Pydantic |
+| Async support | Limited | First-class |
+| Swagger docs | Requires extension | Built-in |
+| Performance | Good | Faster |
+| Learning curve | Easier | Slightly steeper |
+| Best for | Small/simple apps | APIs & microservices |
+
+## Interview Answer
+
+### When would you choose Flask?
+
+- Small applications
+- Simple CRUD apps
+- Legacy projects
+- When flexibility is more important
+
+### When would you choose FastAPI?
+
+- High-performance APIs
+- Async I/O heavy applications
+- Microservices
+- Teams that use Python type hints
+- When automatic documentation is useful
+
+### One-line answer
+
+```text
+Flask gives you flexibility with minimal abstraction, while FastAPI provides built-in validation, async support, and automatic API documentation, making it more suitable for modern production APIs.
+```
+
+---
+
+# 4. Basic FastAPI Structure
+
+```python
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/')
+def health():
+    return {'status': 'ok'}
+```
+
+### Explain
+
+- `FastAPI()` creates the application
+- `@app.get()` defines a GET endpoint
+- Function return value is automatically converted to JSON
+
+---
+
+# 5. Path & Query Parameters
+
+## Path parameter
+
+```python
+@app.get('/users/{user_id}')
+def get_user(user_id: int):
+    return {'user_id': user_id}
+```
+
+### Validation
+
+- If `abc` is passed instead of integer
+- FastAPI automatically returns **422 Unprocessable Entity**
+
+---
+
+## Query parameter
+
+```python
+@app.get('/users')
+def list_users(skip: int = 0, limit: int = 10):
+    return {'skip': skip, 'limit': limit}
+```
+
+### Example
+
+```text
+/users?skip=20&limit=5
+```
+
+---
+
+# 6. Pydantic Validation (VERY IMPORTANT)
+
+## Why do we need validation?
+
+Without validation:
+
+- Wrong data types enter the system
+- Missing fields cause runtime errors
+- Invalid emails/phone numbers get stored
+- Security issues increase
+
+---
+
+## Request model
+
+```python
+from pydantic import BaseModel, EmailStr
+
+class UserCreate(BaseModel):
+    name: str
+    age: int
+    email: EmailStr
+```
+
+---
+
+## Use in endpoint
+
+```python
+@app.post('/users')
+def create_user(user: UserCreate):
+    return user
+```
+
+---
+
+## What Pydantic does automatically
+
+### Type conversion
+
+```json
+{
+  "name": "Khushbu",
+  "age": "25",
+  "email": "a@test.com"
+}
+```
+
+Converted to:
+
+```python
+age = 25
+```
+
+---
+
+## Validation errors
+
+If invalid email:
+
+```json
+{
+  "detail": [
+    {
+      "loc": ["body", "email"],
+      "msg": "value is not a valid email address"
+    }
+  ]
+}
+```
+
+---
+
+# 7. Why Validation Is Useful in Real Projects
+
+## UI sends bad data
+
+```json
+{
+  "age": "twenty"
+}
+```
+
+### Without validation
+
+- Database insert fails
+- 500 Internal Server Error
+
+### With Pydantic
+
+- Request rejected immediately
+- Clear error message returned
+- API remains stable
+
+---
+
+## Interview Answer
+
+```text
+Pydantic acts as a contract between the client and server. It validates incoming data, converts compatible types, generates clear error messages, and ensures that only valid data reaches the business logic and database layer.
+```
+
+---
+
+# 8. Field Constraints
+
+```python
+from pydantic import BaseModel, Field
+
+class Product(BaseModel):
+    name: str = Field(min_length=3, max_length=50)
+    price: float = Field(gt=0)
+    stock: int = Field(ge=0)
+```
+
+### Meaning
+
+- `gt=0` → greater than 0
+- `ge=0` → greater than or equal to 0
+
+---
+
+# 9. Custom Validators
+
+```python
+from pydantic import BaseModel, field_validator
+
+class User(BaseModel):
+    password: str
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, value):
+        if len(value) < 8:
+            raise ValueError('Password too short')
+        return value
+```
+
+### Real use cases
+
+- Password strength
+- Phone number format
+- Date validation
+- Business rules
+
+---
+
+# 10. Response Models
+
+## Why use response_model?
+
+- Hide sensitive fields
+- Ensure consistent API response
+- Auto-generate documentation
+
+---
+
+## Example
+
+```python
+class UserOut(BaseModel):
+    id: int
+    name: str
+
+@app.get('/users/{id}', response_model=UserOut)
+def get_user(id: int):
+    return {
+        'id': 1,
+        'name': 'Khushbu',
+        'password': 'secret'
+    }
+```
+
+### Returned response
+
+```json
+{
+  "id": 1,
+  "name": "Khushbu"
+}
+```
+
+---
+
+# 11. Dependency Injection (HOT)
+
+## What problem does it solve?
+
+Shared resources:
+
+- Database session
+- Authenticated user
+- Config
+- Logger
+
+---
+
+## Database dependency
+
+```python
+from sqlalchemy.orm import Session
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
+---
+
+## Use in endpoint
+
+```python
+from fastapi import Depends
+
+@app.get('/users')
+def list_users(db: Session = Depends(get_db)):
+    return db.query(User).all()
+```
+
+---
+
+## Why is this powerful?
+
+- Automatic cleanup
+- Easy testing
+- Reusable
+- No global database object
+
+---
+
+# 12. SQLAlchemy Connection (VERY IMPORTANT)
+
+## Engine
+
+```python
+from sqlalchemy import create_engine
+
+DATABASE_URL = 'postgresql://user:pass@localhost/db'
+
+engine = create_engine(
+    DATABASE_URL,
+    pool_size=10,
+    max_overflow=20,
+    pool_pre_ping=True
+)
+```
+
+---
+
+## SessionLocal
+
+```python
+from sqlalchemy.orm import sessionmaker
+
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine
+)
+```
+
+---
+
+## Why use sessions?
+
+A session:
+
+- manages transactions
+- tracks changes
+- handles commit/rollback
+
+---
+
+# 13. CRUD Example
+
+## Create
+
+```python
+user = User(name='Khushbu')
+db.add(user)
+db.commit()
+db.refresh(user)
+```
+
+---
+
+## Read
+
+```python
+user = db.query(User).filter(User.id == 1).first()
+```
+
+---
+
+## Update
+
+```python
+user.name = 'New Name'
+db.commit()
+```
+
+---
+
+## Delete
+
+```python
+db.delete(user)
+db.commit()
+```
+
+---
+
+# 14. Transaction Handling
+
+## Correct pattern
+
+```python
+try:
+    db.add(user)
+    db.commit()
+except Exception:
+    db.rollback()
+    raise
+```
+
+### Why rollback?
+
+Prevents partial/invalid data from being saved.
+
+---
+
+# 15. Async vs Sync (HOT)
+
+## Sync endpoint
+
+```python
+@app.get('/sync')
+def sync_api():
+    time.sleep(5)
+    return {'ok': True}
+```
+
+### Problem
+
+Blocks the worker thread.
+
+---
+
+## Async endpoint
+
+```python
+@app.get('/async')
+async def async_api():
+    await asyncio.sleep(5)
+    return {'ok': True}
+```
+
+### Benefit
+
+Worker can handle other requests while waiting.
+
+---
+
+## When to use async?
+
+### Use async for
+
+- HTTP calls
+- Database calls (async driver)
+- File operations
+- WebSockets
+
+### Use sync for
+
+- CPU-heavy tasks
+- Simple operations
+
+---
+
+## Interview Answer
+
+```text
+Async improves concurrency for I/O-bound operations by allowing the event loop to handle other requests while waiting for external resources such as databases or APIs.
+```
+
+---
+
+# 16. JWT Authentication (HOT)
+
+## Create token
+
+```python
+from jose import jwt
+
+token = jwt.encode(
+    {'sub': user.email},
+    SECRET_KEY,
+    algorithm='HS256'
+)
+```
+
+---
+
+## Verify token
+
+```python
+payload = jwt.decode(
+    token,
+    SECRET_KEY,
+    algorithms=['HS256']
+)
+```
+
+---
+
+## OAuth2PasswordBearer
+
+```python
+from fastapi.security import OAuth2PasswordBearer
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl='login')
+```
+
+---
+
+## Protected route
+
+```python
+@app.get('/me')
+def me(token: str = Depends(oauth2_scheme)):
+    return {'token': token}
+```
+
+---
+
+# 17. Middleware (HOT)
+
+## What is middleware?
+
+Code that runs **before and after every request**.
+
+---
+
+## Logging middleware
+
+```python
+@app.middleware('http')
+async def log_requests(request, call_next):
+    start = time.time()
+
+    response = await call_next(request)
+
+    duration = time.time() - start
+    print(f'{request.method} {request.url} took {duration}')
+
+    return response
+```
+
+---
+
+## Common middleware
+
+- CORS
+- Logging
+- Authentication
+- Rate limiting
+- Request ID / tracing
+
+---
+
+# 18. CORS
+
+```python
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['http://localhost:3000'],
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=['*'],
+)
+```
+
+### Why needed?
+
+Allows React frontend to call FastAPI from another origin.
+
+---
+
+# 19. Error Handling
+
+## Raise HTTPException
+
+```python
+from fastapi import HTTPException
+
+if not user:
+    raise HTTPException(
+        status_code=404,
+        detail='User not found'
+    )
+```
+
+---
+
+## Custom exception handler
+
+```python
+@app.exception_handler(ValueError)
+async def value_error_handler(request, exc):
+    return JSONResponse(
+        status_code=400,
+        content={'message': str(exc)}
+    )
+```
+
+---
+
+# 20. Background Tasks
+
+## Use case
+
+- Send email
+- Generate PDF
+- Upload file
+- Trigger webhook
+
+---
+
+## Example
+
+```python
+from fastapi import BackgroundTasks
+
+def send_email(email: str):
+    print(f'Sending email to {email}')
+
+@app.post('/register')
+def register(email: str, bg: BackgroundTasks):
+    bg.add_task(send_email, email)
+    return {'message': 'registered'}
+```
+
+### Important
+
+Runs in the same process after response is sent.
+
+---
+
+# 21. WebSockets (Advanced)
+
+## Server
+
+```python
+from fastapi import WebSocket
+
+@app.websocket('/ws')
+async def websocket_endpoint(ws: WebSocket):
+    await ws.accept()
+
+    while True:
+        data = await ws.receive_text()
+        await ws.send_text(f'Echo: {data}')
+```
+
+---
+
+## Use cases
+
+- Chat apps
+- Live dashboard
+- Notifications
+- Real-time tracking
+
+---
+
+# 22. Alembic Migrations (HOT)
+
+## Initialize
+
+```bash
+alembic init alembic
+```
+
+---
+
+## Create migration
+
+```bash
+alembic revision --autogenerate -m 'create users table'
+```
+
+---
+
+## Apply migration
+
+```bash
+alembic upgrade head
+```
+
+### Why use migrations?
+
+- Version control for DB schema
+- Team collaboration
+- Safe production deployments
+
+---
+
+# 23. Connection Pooling (Advanced)
+
+## Why pooling?
+
+Opening a DB connection for every request is expensive.
+
+---
+
+## Engine config
+
+```python
+create_engine(
+    DATABASE_URL,
+    pool_size=10,
+    max_overflow=20,
+    pool_timeout=30,
+    pool_recycle=1800
+)
+```
+
+---
+
+## Explain
+
+- `pool_size=10` → keep 10 ready connections
+- `max_overflow=20` → allow 20 extra temporary connections
+- `pool_timeout=30` → wait 30s before failing
+
+---
+
+# 24. Async SQLAlchemy (Advanced)
+
+## Create async engine
+
+```python
+from sqlalchemy.ext.asyncio import create_async_engine
+
+engine = create_async_engine(
+    'postgresql+asyncpg://user:pass@localhost/db'
+)
+```
+
+---
+
+## Async session
+
+```python
+from sqlalchemy.ext.asyncio import AsyncSession
+
+async def get_db():
+    async with AsyncSession(engine) as session:
+        yield session
+```
+
+---
+
+## Async query
+
+```python
+result = await db.execute(select(User))
+users = result.scalars().all()
+```
+
+### Interview question
+
+**What driver is commonly used?**
+
+- `asyncpg` for PostgreSQL
+- `aiomysql` for MySQL
+
+---
+
+# 25. Testing with pytest
+
+## Test client
+
+```python
+from fastapi.testclient import TestClient
+
+client = TestClient(app)
+
+def test_health():
+    response = client.get('/')
+
+    assert response.status_code == 200
+    assert response.json() == {'status': 'ok'}
+```
+
+---
+
+## Dependency override
+
+```python
+app.dependency_overrides[get_db] = override_db
+```
+
+### Why useful?
+
+Use a test database instead of production DB.
+
+---
+
+# 26. Caching with Redis (Advanced)
+
+## Why cache?
+
+Reduce database load.
+
+---
+
+## Example
+
+```python
+cached = redis.get('users')
+
+if cached:
+    return json.loads(cached)
+
+users = fetch_from_db()
+
+redis.setex('users', 300, json.dumps(users))
+```
+
+### Common interview question
+
+**What data should be cached?**
+
+- Frequently read
+- Rarely changed
+- Expensive to compute
+
+---
+
+# 27. Celery vs BackgroundTasks
+
+| BackgroundTasks | Celery |
+|---|---|
+| Same process | Separate workers |
+| Simple | Distributed |
+| No retry | Retry support |
+| Lightweight | Production-grade |
+| Small tasks | Long-running tasks |
+
+### Interview answer
+
+Use **BackgroundTasks for lightweight work** and **Celery for heavy or distributed tasks requiring retries and monitoring**.
+
+---
+
+# 28. FastAPI Request Flow
+
+```text
+Client
+  |
+  v
+Middleware
+  |
+  v
+Route
+  |
+  v
+Dependency Injection
+  |
+  v
+Pydantic Validation
+  |
+  v
+Business Logic
+  |
+  v
+Database
+  |
+  v
+Response Model
+  |
+  v
+Client
+```
+
+Be able to explain this flow clearly.
+
+---
+
+# 29. Most Asked Rapid-Fire Questions
+
+## What is dependency injection?
+
+Providing required objects (DB session, user, config) to functions automatically.
+
+---
+
+## Why is FastAPI fast?
+
+- Starlette ASGI
+- Async support
+- Pydantic in Rust (v2)
+- Type-hint based validation
+
+---
+
+## Difference between 401 and 403?
+
+- **401** → Not authenticated
+- **403** → Authenticated but not authorized
+
+---
+
+## Why use response_model?
+
+- Hide sensitive fields
+- Validate outgoing data
+- Keep API contract consistent
+
+---
+
+## What is 422 error?
+
+Validation error from Pydantic for request data.
+
+---
+
+# 30. Production Best Practices
+
+## Project structure
+
+```text
+app/
+  api/
+  models/
+  schemas/
+  services/
+  repositories/
+  core/
+  db/
+  main.py
+```
+
+---
+
+## Use environment variables
+
+```python
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    db_url: str
+    secret_key: str
+```
+
+---
+
+## Logging
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+logger.info('User created')
+```
+
+---
+
+## Health check endpoint
+
+```python
+@app.get('/health')
+def health():
+    return {'status': 'healthy'}
+```
+
+---
+
+# 31. 10 Questions I Must Answer Without Hesitation
+
+1. FastAPI vs Flask
+2. How Pydantic validation works
+3. Why use dependency injection
+4. Difference between async and sync
+5. How SQLAlchemy sessions work
+6. How JWT authentication works
+7. What middleware is and why it is useful
+8. How to handle transactions and rollbacks
+9. What connection pooling is
+10. BackgroundTasks vs Celery
+
+---
+
+# 32. Best One-Line Definitions
+
+## Pydantic
+
+```text
+Pydantic is a data validation and serialization library that uses Python type hints to validate and convert incoming and outgoing data.
+```
+
+## Dependency Injection
+
+```text
+A design pattern where dependencies are provided to a function instead of being created inside it.
+```
+
+## Connection Pooling
+
+```text
+A technique that reuses database connections to improve performance and reduce connection overhead.
+```
+
+## Middleware
+
+```text
+Code that intercepts every request and response for cross-cutting concerns such as logging, authentication, and CORS.
+```
+
+## Async
+
+```text
+A concurrency model that allows a program to handle other tasks while waiting for I/O operations to complete.
+```
+
+---
+
+# Final Interview Strategy
+
+Since you claimed **2 years of FastAPI experience**, focus on speaking confidently about:
+
+## Strong areas to emphasize
+
+- Pydantic validation
+- SQLAlchemy session handling
+- JWT auth
+- Dependency injection
+- Middleware
+- Async APIs
+- Alembic migrations
+- Docker deployment
+
+## Be careful with
+
+- Deep event-loop internals
+- Advanced asyncio primitives
+- Distributed tracing
+- High-scale architecture numbers unless you have real experience
+
+A good closing line:
+
+```text
+In my projects, I usually structure FastAPI applications using routers, services, repositories, and dependency injection, with Pydantic handling validation and SQLAlchemy managing database interactions. This keeps the code modular, testable, and production-friendly.
+```
