@@ -5068,3 +5068,475 @@ This enables real-time monitoring of both parent and subgraph execution.
 
 ---
 
+# LLM Memory
+
+## LLM at Inference
+
+- At inference time, an LLM is essentially a **parameterized mathematical function**.
+
+![llm_function](images_md/llm_function.png)
+
+Mathematically,
+
+$$
+y = f_{\theta}(x)
+$$
+where:
+
+- **x** = Input (prompt)
+- **θ (theta)** = Model parameters (weights learned during training)
+- **y** = Output (generated response)
+
+---
+
+## LLMs are Stateless
+
+A parameterized mathematical function is **stateless** during inference.
+
+> **Definition:** A system is **stateless** if its output depends **only on the current input** and **not on anything that happened before**.
+
+### Example
+
+Suppose the model parameters (**θ**) remain fixed.
+
+- If the input is **x₁**:
+
+  $$
+  y_1 = f_{\theta}(x_1)
+  $$
+
+- If the input is **x₂**:
+
+  $$
+  y_2 = f_{\theta}(x_2)
+  $$
+
+Since **θ** does not change during inference, each output depends only on its corresponding input.
+
+Since **θ** does not change during inference, each output depends only on its corresponding input.
+
+**Therefore:**
+
+- LLMs at inference are generally **stateless**.
+- They **do not have any intrinsic memory** of previous interactions.
+
+---
+
+# Context Window
+
+**Context Window** is the amount of text an LLM can read and remember **at one time** before generating a response.
+
+It includes everything provided in the current prompt, such as:
+
+- System prompts
+- User messages
+- Previous conversation (if included)
+- Retrieved documents
+- Examples
+
+Anything outside the context window is **not available** to the model during inference.
+
+---
+
+# In-Context Learning
+
+**In-Context Learning (ICL)** is an **emergent ability** that allows an LLM to use information and patterns present **within the prompt itself**, in addition to its learned **parametric knowledge**, to generate an appropriate response.
+
+![in_context_learning](images_md/in_context_learning.png)
+
+In other words, instead of updating its parameters (**θ**), the model temporarily learns from the examples and instructions provided in the current context.
+
+For example, if a prompt contains:
+
+- Instructions
+- Examples
+- Demonstrations
+
+the LLM can infer the desired pattern and apply it to new inputs within the same context, without any retraining.
+
+---
+
+---
+
+## Key Takeaways
+
+- During inference, an LLM behaves like a **parameterized mathematical function**.
+- The model parameters (**θ**) remain fixed during inference.
+- LLMs are generally **stateless** and have **no intrinsic memory**.
+- A **context window** provides temporary memory for the current interaction.
+- **In-context learning** enables the model to learn from examples and instructions present in the prompt without modifying its parameters.
+
+---
+
+# Implementing Memory in LLM Applications
+
+Although an LLM itself is **stateless**, we can build a **stateful application** around it.
+
+This is achieved by combining:
+
+- **Context Window**
+- **In-Context Learning**
+
+The application sends relevant conversation history along with every new user message.
+
+Instead of the model remembering previous interactions internally, the application **reconstructs the memory** by including past information in the prompt.
+
+---
+
+## How Chatbots Remember Conversations
+
+In a chatbot:
+
+1. User sends a message.
+2. The conversation history (or a portion of it) is retrieved.
+3. The history is appended to the current prompt.
+4. The entire prompt is sent to the LLM.
+5. The LLM generates a response using the provided context.
+
+This creates the illusion that the model remembers previous conversations.
+
+---
+
+# Short-Term Memory (STM)
+
+In LLM applications, **Short-Term Memory (STM)** refers to the conversation history that exists **within a single thread or session**.
+
+> **Short-Term Memory = Thread Scope**
+
+As long as the conversation continues, previous messages remain available through the context window.
+
+---
+
+## Limitations of Short-Term Memory
+
+### 1. STM is Fragile
+
+If:
+
+- the server crashes,
+- the application restarts,
+- the conversation is lost,
+
+then the memory disappears because it only existed inside the active session.
+
+To avoid this, applications use **persistent storage**.
+
+---
+
+### 2. Context Window Limitation
+
+The context window has a fixed size.
+
+As conversations become longer:
+
+- older messages cannot all fit,
+- important information may be dropped.
+
+Applications usually solve this using techniques such as:
+
+- Trimming old messages
+- Conversation Summarization
+- Hybrid approaches (summary + recent messages)
+
+> **TODO:** Create a diagram explaining:
+>
+> - Trimming
+> - Summarization
+> - Hybrid Memory Strategy
+
+---
+
+### 3. STM is Thread-Scoped
+
+Short-term memory exists only within one conversation thread.
+
+Because of this:
+
+1. User continuity is lost across conversations.
+2. Learning never compounds over time.
+3. Cross-thread reasoning is impossible.
+
+---
+
+# Long-Term Memory (LTM)
+
+To overcome the limitations of STM, applications introduce **Long-Term Memory (LTM)**.
+
+Long-term memory stores information that should survive:
+
+- beyond a single session,
+- beyond a single conversation thread,
+- across days, weeks, or even months.
+
+Unlike STM, it is **persistent**.
+
+---
+
+## What Should Long-Term Memory Store?
+
+Long-term memory stores information that defines continuity.
+
+Examples include:
+
+1. Who the user is.
+2. How the system is expected to behave for that user.
+3. What tends to work well and what usually fails.
+4. Decisions that were already made in previous conversations.
+
+---
+
+## Long-Term Memory Must Be Selective
+
+Not everything should be remembered forever.
+
+Only information that is:
+
+- Stable
+- Useful
+- Reusable
+
+should survive beyond a single conversation.
+
+Everything else should naturally fade away.
+
+---
+
+# Types of Long-Term Memory
+
+## 1. Episodic Memory
+
+### What it Stores
+
+Specific past experiences or events.
+
+Examples:
+
+- The user booked a vacation.
+- The user asked for a study plan.
+- The user completed a project.
+
+### Why it Exists
+
+To recall previous experiences and maintain continuity across conversations.
+
+---
+
+## 2. Semantic Memory
+
+### What it Stores
+
+Facts and knowledge about the user or the world.
+
+Examples:
+
+- User prefers Python.
+- User is vegetarian.
+- User lives in Mumbai.
+
+### Why it Exists
+
+To personalize future interactions without repeatedly asking for the same information.
+
+---
+
+## 3. Procedural Memory
+
+### What it Stores
+
+Instructions about **how the system should behave**.
+
+Examples:
+
+- Always answer briefly.
+- Prefer code examples.
+- Use bullet points.
+- Explain concepts visually whenever possible.
+
+### Why it Exists
+
+To make the assistant consistently behave according to user preferences.
+
+---
+
+# How Does Long-Term Memory Work?
+
+A typical long-term memory pipeline consists of four stages:
+
+1. Creation / Update
+2. Storage
+3. Retrieval
+4. Injection
+
+---
+
+# 1. Creation / Update
+
+The system first asks:
+
+> **"Is anything from what just happened worth remembering beyond this conversation?"**
+
+### What the System Looks At
+
+- User messages
+- Model responses
+- Tool outputs
+
+### What Happens
+
+The system:
+
+- Extracts memory candidates.
+- Filters out noise.
+- Determines the memory scope (User / Agent / Application).
+- Decides whether to:
+  - Create a new memory
+  - Update an existing memory
+  - Ignore it
+
+Only high-quality memories move to the next stage.
+
+---
+
+# 2. Storage
+
+Once a memory is accepted, it is written to a durable storage system.
+
+### What Storage Means
+
+- Writing memory to persistent storage
+- Assigning unique identifiers
+- Adding metadata
+- Making the memory survive crashes and restarts
+
+Depending on the application, storage may be:
+
+- Relational Database
+- Key-Value Store
+- Log Storage
+- Vector Database (for semantic retrieval)
+
+---
+
+# 3. Retrieval
+
+Whenever a new request arrives, the system asks:
+
+> **"Given the current situation, what should I remember right now?"**
+
+### Retrieval Process
+
+The system:
+
+- Examines the current input.
+- Determines whether memory is needed.
+- Searches memory stores.
+- Selects only the most relevant memories.
+
+> **Key Point:** Retrieval is **selective**, not exhaustive.
+
+The model should only receive memories that are relevant to the current conversation.
+
+---
+
+# 4. Injection
+
+After retrieval, the selected memories are inserted into the prompt.
+
+### What Injection Means
+
+- Retrieved memories are added to the Short-Term Memory.
+- They become part of the context window.
+- The LLM simply sees them as additional tokens in the prompt.
+
+The LLM has no special mechanism for reading long-term memory directly.
+
+---
+
+## Relationship Between STM and LTM
+
+Long-Term Memory never directly interacts with the LLM.
+
+Instead, the flow looks like this:
+
+```text
+Long-Term Memory
+        │
+        ▼
+   Memory Search
+        │
+        ▼
+     Retrieval
+        │
+        ▼
+ Short-Term Memory
+        │
+        ▼
+ Context Window
+        │
+        ▼
+        LLM
+```
+
+The retrieved memories temporarily become part of the context window before the model generates a response.
+
+---
+
+# Challenges of Long-Term Memory
+
+Building a reliable long-term memory system involves several challenges.
+
+## 1. Deciding What Is Worth Remembering
+
+Remembering too much leads to noisy memory.
+
+Remembering too little loses personalization.
+
+---
+
+## 2. Retrieving the Right Memory
+
+The system must retrieve:
+
+- the right memory,
+- at the right time,
+- for the right task.
+
+Poor retrieval can be worse than having no memory at all.
+
+---
+
+## 3. Orchestrating the Entire Pipeline
+
+The application must coordinate:
+
+- Memory extraction
+- Storage
+- Retrieval
+- Prompt injection
+
+while keeping latency low and memory quality high.
+
+---
+
+# Memory Frameworks
+
+Several frameworks help implement long-term memory in LLM applications.
+
+Examples include:
+
+- LangMem
+- Mem0
+- Supermemory
+
+These frameworks provide utilities for memory extraction, storage, retrieval, and prompt injection.
+
+---
+
+# Research
+
+## Titan + MIRAS
+
+Titan and MIRAS are research efforts focused on helping AI systems develop more effective **long-term memory**, enabling them to retain and retrieve useful information across extended interactions and long time horizons.
+
+> *(This section can be expanded later with implementation details and architecture diagrams.)*
+
