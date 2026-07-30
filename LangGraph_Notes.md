@@ -5538,5 +5538,551 @@ These frameworks provide utilities for memory extraction, storage, retrieval, an
 
 Titan and MIRAS are research efforts focused on helping AI systems develop more effective **long-term memory**, enabling them to retain and retrieve useful information across extended interactions and long time horizons.
 
-> *(This section can be expanded later with implementation details and architecture diagrams.)*
+---
+# LangGraph: Short-Term Memory (STM), Trimming, Summarization & Hybrid Context
 
+## 1. Short-Term Memory (STM) in LangGraph
+
+LangGraph provides **Short-Term Memory (STM)** using:
+
+- **Checkpointer** → Stores the conversation state.
+- **thread_id** → Identifies a unique conversation/session.
+- **MessagesState** → Default state object used to store conversation messages.
+
+```python
+from langgraph.graph import MessagesState
+```
+
+### Production Setup
+
+In production, the recommended approach (as per LangGraph documentation) is to use a **PostgreSQL Checkpointer**.
+
+```
+User
+   │
+   ▼
+thread_id
+   │
+   ▼
+Postgres Checkpointer
+   │
+   ▼
+MessagesState
+```
+
+Every conversation has its own `thread_id`, allowing LangGraph to retrieve the correct conversation history.
+
+---
+
+# 2. The Problem
+
+LLMs have a **limited context window**.
+
+Example:
+
+```
+Model Context Window = 8K Tokens
+
+Conversation
+----------------------------------
+
+User
+Assistant
+User
+Assistant
+...
+...
+...
+100 Messages
+
+Total = 18K Tokens ❌
+```
+
+We cannot send the entire conversation to the LLM.
+
+We need strategies to fit the prompt within the model's token limit.
+
+---
+
+# 3. Trimming
+
+## What is Trimming?
+
+Trimming keeps only the messages that fit within a specified token budget.
+
+LangChain already provides utilities for this.
+
+```python
+from langchain_core.messages.utils import (
+    trim_messages,
+    count_tokens_approximately
+)
+```
+
+---
+
+## Code Example
+
+```python
+from langchain_core.messages.utils import (
+    trim_messages,
+    count_tokens_approximately
+)
+
+MAX_TOKENS = 150
+
+def call_node(state: MessagesState):
+
+    # Keep only the latest messages that fit within the token budget
+    messages = trim_messages(
+        state["messages"],
+        strategy="last",
+        token_counter=count_tokens_approximately,
+        max_tokens=MAX_TOKENS,
+    )
+
+    print(
+        "Current Token Count:",
+        count_tokens_approximately(messages=messages)
+    )
+
+    for message in messages:
+        print(message.content)
+
+    response = model.invoke(messages)
+
+    return {
+        "messages": [response]
+    }
+```
+
+---
+
+## How Trimming Works
+
+Suppose we have:
+
+```
+Conversation
+
+M1
+M2
+M3
+M4
+M5
+M6
+M7
+M8
+M9
+M10
+```
+
+Assume:
+
+```
+MAX_TOKENS = 150
+```
+
+After trimming:
+
+```
+Conversation sent to LLM
+
+M8
+M9
+M10
+```
+
+Older messages are **not sent** to the LLM.
+
+---
+
+## Important Point
+
+Trimming **does not delete messages from storage**.
+
+Messages still exist in:
+
+- PostgreSQL
+- SQLite
+- MemorySaver
+- Any Checkpointer
+
+They are only removed from the **prompt sent to the LLM**, not from the database.
+
+```
+Database
+
+M1
+M2
+M3
+...
+M10
+
+         │
+
+         ▼
+
+trim_messages()
+
+         │
+
+         ▼
+
+Prompt
+
+M8
+M9
+M10
+```
+
+---
+
+## Advantages of Trimming
+
+- Very fast
+- No extra LLM call
+- Easy to implement
+- Guarantees token budget
+
+---
+
+## Challenge with Trimming
+
+Trimming assumes:
+
+> "The latest conversation is the most important."
+
+This assumption often fails in real-world applications.
+
+Example:
+
+```
+User:
+I'm building an HR chatbot.
+
+...
+
+500 messages later
+
+User:
+Now add leave management.
+```
+
+After trimming:
+
+```
+User:
+Now add leave management.
+```
+
+The model has forgotten that the project is an **HR chatbot**.
+
+Important context is lost.
+
+---
+
+# 4. Summarization
+
+## Why Summarization?
+
+Instead of completely forgetting older messages, we compress them into a concise summary.
+
+Example:
+
+Original Conversation
+
+```
+M1
+M2
+M3
+M4
+M5
+M6
+M7
+```
+
+↓
+
+Summary
+
+```
+Summary:
+- User is building an HR chatbot.
+- Uses LangGraph.
+- PostgreSQL is used for checkpointing.
+- Wants memory support.
+```
+
+Instead of sending seven messages, we send one summary.
+
+---
+
+## How It Works
+
+```
+Old Messages
+
+↓
+
+LLM generates summary
+
+↓
+
+Store summary
+
+↓
+
+Delete old messages from active state
+
+↓
+
+Keep recent messages
+```
+
+---
+
+## Result
+
+Instead of:
+
+```
+M1
+M2
+M3
+M4
+M5
+M6
+M7
+M8
+M9
+```
+
+We now have:
+
+```
+Summary of M1-M7
+
++
+
+M8
+
+M9
+```
+
+The LLM still knows what happened earlier.
+
+---
+
+## Advantages
+
+- Preserves long-term context.
+- Saves tokens.
+- Better than forgetting old messages.
+
+---
+## Important Note
+- Summarized messages get deleted from active state as we have the summarized version of it
+- To remove msg from state we use the library 
+> from langchain.messages import RemoveMessage
+
+---
+
+## Challenge
+
+A summary is a compressed version of the conversation.
+
+Compression always loses some details.
+
+Example
+
+Original
+
+```
+Use GPT-4.1 for coding.
+Use Claude for reasoning.
+Use Gemini for vision.
+Temperature = 0.2
+```
+
+Possible Summary
+
+```
+User discussed model selection.
+```
+
+Specific details are lost.
+
+---
+
+# 5. Hybrid Context (Trimming + Summarization)
+
+Most production AI systems use **both** techniques together.
+
+Many beginners ask:
+
+> If summarization already replaces old messages, why do we still need trimming?
+
+The answer is:
+
+**They solve different problems.**
+
+---
+
+## Trimming solves
+
+```
+Current Prompt exceeds
+the token limit.
+```
+
+---
+
+## Summarization solves
+
+```
+Don't lose
+important old context.
+```
+
+---
+
+## Hybrid Workflow
+
+```
+Entire Conversation
+
+M1
+M2
+M3
+...
+M1000
+
+        │
+
+        ▼
+
+Summarize old messages
+
+        │
+
+        ▼
+
+Summary
+
++
+
+Recent Messages
+
+M971
+...
+M1000
+
+        │
+
+        ▼
+
+trim_messages()
+
+        │
+
+        ▼
+
+Final Prompt
+
+Summary
+
++
+
+Latest messages that fit the token budget
+
+        │
+
+        ▼
+
+LLM
+```
+
+---
+
+## Why Hybrid?
+
+Imagine:
+
+```
+1000 Messages
+```
+
+Sending everything:
+
+```
+❌ Too many tokens
+```
+
+Only trimming:
+
+```
+Last 20 messages
+
+❌ Older context is forgotten
+```
+
+Only summary:
+
+```
+Summary
+
+❌ Recent conversation details may be missing
+```
+
+Hybrid:
+
+```
+Summary
+
++
+
+Latest messages
+
+✅ Long-term context preserved
+
+✅ Recent details preserved
+
+✅ Token limit maintained
+```
+
+This is why hybrid is considered the best production approach.
+
+---
+
+# 6. Difference: Trimming vs Summarization vs Hybrid
+
+| Feature | Trimming | Summarization | Hybrid |
+|----------|----------|---------------|---------|
+| Removes old messages from prompt | ✅ | ✅ (after summarizing) | ✅ |
+| Preserves old context | ❌ | ✅ | ✅ |
+| Keeps recent messages | ✅ | Usually | ✅ |
+| Requires an additional LLM call | ❌ | ✅ | ✅ |
+| Guarantees token budget | ✅ | Not always | ✅ |
+| Best for production | Small apps | Medium apps | Large production apps |
+
+---
+
+# 8. Key Takeaways
+
+- **Checkpointer + thread_id** implement **Short-Term Memory (STM)** in LangGraph.
+- **MessagesState** is the default state for storing conversation messages.
+- Production systems commonly use **PostgreSQL Checkpointer**.
+- **Trimming** only removes messages from the prompt, not from the database.
+- `trim_messages()` keeps the latest messages that fit within the token budget.
+- Developers should choose an appropriate `MAX_TOKENS` based on the application's needs.
+- Trimming is fast but may lose important historical context.
+- **Summarization** compresses older messages into a concise summary before removing them from the active state.
+- Summarization preserves long-term context but may lose fine-grained details.
+- **Hybrid Context (Summarization + Trimming)** combines the strengths of both approaches:
+  - Summary preserves important historical information.
+  - Recent messages retain detailed conversational context.
+  - Trimming ensures the final prompt always fits within the model's context window.
+- This hybrid approach is the preferred strategy for most production-grade AI agents built with LangGraph.
+---
+![long_context_solution](images_md/long_context_solution.png)
