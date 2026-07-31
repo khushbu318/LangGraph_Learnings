@@ -6086,3 +6086,21 @@ This is why hybrid is considered the best production approach.
 - This hybrid approach is the preferred strategy for most production-grade AI agents built with LangGraph.
 ---
 ![long_context_solution](images_md/long_context_solution.png)
+
+---
+LTM implementation in langGraph
+
+-  As we hvae diffierent threads of conversation 
+in one user chat about tech ,in one travel , in one about some pyscology so from different treads we got some imp information about the user
+such as : user is tech preson and prefer python, and will locate to mumbai soon, and believer in manifestation 
+can be use this info to personalize the conversation later .. this is called the ltm long term memory
+
+- TEchincality in langgraph
+- we ahve the BaseStore in langGraph and it is abstract class
+- In BaseStore we can perform action of memory such as create, edit, search, delete
+- Base store is parent and clid are ImemoryStore, PostgresStore, RedisStore,
+
+![BaseStore_langgraph](images_md/BaseStore_langgraph.png)
+
+
+
