@@ -1362,8 +1362,10 @@ For production, it is usually stored in a **database** such as:
 - Redis
 - MongoDB (custom implementation)
 
-<Table columnSizing="equal" rowDivider={{"size":1,"color":"default"}}><Table.Row header><Table.Cell>Environment</Table.Cell><Table.Cell>Storage</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Development</Text></Table.Cell><Table.Cell>RAM / MemorySaver</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Production</Text></Table.Cell><Table.Cell>SQLite / PostgreSQL / Redis / other persistent DBs</Table.Cell></Table.Row></Table>
-
+| **Environment** | **Storage** |
+|-----------------|-------------|
+| **Development** | RAM / MemorySaver |
+| **Production** | SQLite / PostgreSQL / Redis / other persistent DBs |
 ---
 
 ## What gets saved?
@@ -1445,7 +1447,10 @@ Because the same **thread_id** is used, the graph loads the previous state and c
 
 Think of writing a document:
 
-<List><List.Item>You type a paragraph → **state changes**</List.Item><List.Item>Auto-save runs → **checkpoint created**</List.Item><List.Item>Laptop shuts down → application stops</List.Item><List.Item>You reopen the document → **state restored from checkpoint**</List.Item></List>
+- You type a paragraph → **state changes**
+- Auto-save runs → **checkpoint created**
+- Laptop shuts down → application stops
+- You reopen the document → **state restored from checkpoint**
 
 LangGraph persistence works in the same way.
 
@@ -1476,151 +1481,126 @@ Without threads, all users would share the same saved state.
 
 Threads provide **isolation** between workflow sessions.
 
-<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-1" color="info"/><Text weight="semibold">numbers = [1, 2]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row><Divider spacing={3}/><Row align="center" columnGap={3} wrap="wrap"><Badge label="Thread user-2" color="success"/><Text weight="semibold">numbers = [10, 20]</Text><Spacer/><Badge label="Stored separately" variant="outline"/></Row></Box>
+> **Thread:** `user-1`  
+> **State:** `numbers = [1, 2]`  
+> *Stored separately*
 
+---
+
+> **Thread:** `user-2`  
+> **State:** `numbers = [10, 20]`  
+> *Stored separately*
 ---
 
 # Example with Two Graph Sessions
 
 ## Graph setup
 
-<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver
+```python
+from langgraph.checkpoint.memory import MemorySaver
 
 checkpointer = MemorySaver()
-graph = builder.compile(checkpointer=checkpointer)"/>
+graph = builder.compile(checkpointer=checkpointer)
+```
 
 ---
-
 ## Session 1 (User A)
 
-<CodeBlock language="python" content="config_a = {"configurable": {"thread_id": "user-A"}}
+```python
+config_a = {"configurable": {"thread_id": "user-A"}}
 
 graph.invoke(
     {"numbers": [1, 2]},
     config=config_a
-)"/>
+)
+```
 
 Saved state for **user-A**:
 
-<CodeBlock language="python" content="{"numbers": [1, 2]}"/>
+```python
+{"numbers": [1, 2]}
+```
 
 ---
 
 ## Session 2 (User B)
 
-<CodeBlock language="python" content="config_b = {"configurable": {"thread_id": "user-B"}}
+```python
+config_b = {"configurable": {"thread_id": "user-B"}}
 
 graph.invoke(
     {"numbers": [10, 20]},
     config=config_b
-)"/>
+)
+```
 
 Saved state for **user-B**:
 
-<CodeBlock language="python" content="{"numbers": [10, 20]}"/>
+```python
+{"numbers": [10, 20]}
+```
 
 ---
 
 ## Resume User A
 
-<CodeBlock language="python" content="graph.invoke(
+```python
+graph.invoke(
     {"numbers": [3]},
     config=config_a
-)"/>
+)
+```
 
 Result:
 
-<CodeBlock language="python" content="{"numbers": [1, 2, 3]}"/>
+```python
+{"numbers": [1, 2, 3]}
+```
 
 LangGraph automatically loaded the previous checkpoint for **user-A** and appended `3`.
 
 ---
 
-# Visual Flow
+## Visual Flow
 
-<CodeBlock language="text" content="Thread: user-A
+```text
+Thread: user-A
 
 Start
-  │
-  ├── CP1 → [1]
-  ├── CP2 → [1, 2]
-  └── CP3 → [1, 2, 3]
-
-
+│
+├── CP1 → [1]
+├── CP2 → [1, 2]
+└── CP3 → [1, 2, 3]
+```
+```text
 Thread: user-B
 
 Start
-  │
-  ├── CP1 → [10]
-  └── CP2 → [10, 20]"/>
+│
+├── CP1 → [10]
+└── CP2 → [10, 20]
+```
 
 Each thread has **its own independent checkpoint history**.
 
 ---
 
-# Key Points to Remember
+## Key Points to Remember
 
-<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><List gap={2}><List.Item><Text inline weight="semibold">Persistence</Text> saves and restores workflow state.</List.Item><List.Item><Text inline weight="semibold">Checkpointer</Text> performs the actual save/load operations.</List.Item><List.Item>State is saved after every <Text inline weight="semibold">super-step</Text>.</List.Item><List.Item><Text inline weight="semibold">MemorySaver</Text> stores state in RAM (temporary).</List.Item><List.Item>Production systems should use a <Text inline weight="semibold">persistent database</Text>.</List.Item><List.Item><Text inline weight="semibold">Threads</Text> separate workflow sessions using a unique <Code value="thread_id"/>.</List.Item><List.Item>Using the same <Code value="thread_id"/> allows the graph to <Text inline weight="semibold">resume from the last checkpoint</Text>.</List.Item></List></Box>
+- Persistence saves and restores workflow state.
+- A checkpointer performs the actual save/load operations.
+- State is saved after every super-step.
+- `MemorySaver` stores state in RAM (temporary).
+- Production systems should use a persistent database.
+- Threads separate workflow sessions using a unique `thread_id`.
+- Using the same `thread_id` allows the graph to resume from the last checkpoint.
 
 ---
 
-# One-Line Revision
+## One-Line Revision
 
-<Highlight value="Persistence remembers the graph state, the checkpointer stores it, and the thread_id tells LangGraph which saved workflow to continue."/>
-the below code are not visible in preview of the md file in vs code 
+**Persistence lets LangGraph save workflow state after every super-step and later resume execution from the last checkpoint using the same `thread_id`.**
 
-<Table columnSizing="equal" rowDivider={{"size":1,"color":"default"}}><Table.Row header><Table.Cell>Environment</Table.Cell><Table.Cell>Storage</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Development</Text></Table.Cell><Table.Cell>RAM / MemorySaver</Table.Cell></Table.Row><Table.Row><Table.Cell><Text inline weight="semibold">Production</Text></Table.Cell><Table.Cell>SQLite / PostgreSQL / Redis / other persistent DBs</Table.Cell></Table.Row></Table>
-
-<List.Item>You type a paragraph → state changes</List.Item><List.Item>Auto-save runs → checkpoint created</List.Item><List.Item>Laptop shuts down → application stops</List.Item><List.Item>You reopen the document → state restored from checkpoint</List.Item>
-
-<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}>numbers = [1, 2]numbers = [10, 20]
-Graph setup
-<CodeBlock language="python" content="from langgraph.checkpoint.memory import MemorySaver
-
-checkpointer = MemorySaver() graph = builder.compile(checkpointer=checkpointer)"/>
-
-Session 1 (User A)
-<CodeBlock language="python" content="config_a = {"configurable": {"thread_id": "user-A"}}
-
-graph.invoke( {"numbers": [1, 2]}, config=config_a )"/>
-
-Saved state for user-A:
-
-<CodeBlock language="python" content="{"numbers": [1, 2]}"/>
-
-Session 2 (User B)
-<CodeBlock language="python" content="config_b = {"configurable": {"thread_id": "user-B"}}
-
-graph.invoke( {"numbers": [10, 20]}, config=config_b )"/>
-
-Saved state for user-B:
-
-<CodeBlock language="python" content="{"numbers": [10, 20]}"/>
-
-Resume User A
-<CodeBlock language="python" content="graph.invoke( {"numbers": [3]}, config=config_a )"/>
-
-Result:
-
-<CodeBlock language="python" content="{"numbers": [1, 2, 3]}"/>
-
-LangGraph automatically loaded the previous checkpoint for user-A and appended 3.
-
-Visual Flow
-<CodeBlock language="text" content="Thread: user-A
-
-Start │ ├── CP1 → [1] ├── CP2 → [1, 2] └── CP3 → [1, 2, 3]
-
-Thread: user-B
-
-Start │ ├── CP1 → [10] └── CP2 → [10, 20]"/>
-
-Each thread has its own independent checkpoint history.
-
-Key Points to Remember
-<Box background="surface" border={{"size":1,"color":"default"}} radius="3xl" padding={4}><List.Item>Persistence saves and restores workflow state.</List.Item><List.Item>Checkpointer performs the actual save/load operations.</List.Item><List.Item>State is saved after every super-step.</List.Item><List.Item>MemorySaver stores state in RAM (temporary).</List.Item><List.Item>Production systems should use a persistent database.</List.Item><List.Item>Threads separate workflow sessions using a unique .</List.Item><List.Item>Using the same allows the graph to resume from the last checkpoint.</List.Item>
-
-One-Line Revision
 ## Where is the state stored?
 
 During development, state can be stored **in memory (RAM)**.
